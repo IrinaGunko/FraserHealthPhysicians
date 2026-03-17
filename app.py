@@ -423,23 +423,11 @@ DEMO_FILES = [
         "scores": {"Abnormality": 1, "Focal Epi": 1, "Focal Non-epi": 1, "Gen Epi": 1, "Gen Non-epi": 1},
     },
     {
-        "label": "Mild Abnormality (1-1-2-2-2)",
-        "path": "hdf/1_1_2_2_2/000dee81-8ae4-4275-bfdf-556658a2709f-ico-4-ltc.hdf5",
-        "description": "Borderline focal/generalised non-epileptic features",
-        "scores": {"Abnormality": 2, "Focal Epi": 1, "Focal Non-epi": 2, "Gen Epi": 1, "Gen Non-epi": 2},
-    },
-    {
-        "label": "Focal Epi + Gen Non-Epi (3-1-1-4-4)",
-        "path": "hdf/3_1_1_4_4/381da026-5cab-48b1-bf58-a02704659c68-ico-4-ltc.hdf5",
-        "description": "Probable focal epileptic, definite generalised non-epileptic",
-        "scores": {"Abnormality": 4, "Focal Epi": 3, "Focal Non-epi": 1, "Gen Epi": 1, "Gen Non-epi": 4},
-    },
-    {
         "label": "Definite Focal Epi (4-1-1-1-4)",
         "path": "hdf/4_1_1_1_4/575f3167-871c-4be8-a12f-48ceb16915ca-ico-4-ltc.hdf5",
         "description": "Definite focal epileptic features, definite overall abnormality",
         "scores": {"Abnormality": 4, "Focal Epi": 4, "Focal Non-epi": 1, "Gen Epi": 1, "Gen Non-epi": 1},
-    },
+    }
 ]
 
 # ── Session state ─────────────────────────────────────────────────────────────
