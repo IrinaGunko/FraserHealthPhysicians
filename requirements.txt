@@ -1,0 +1,16 @@
+shap==0.51.0
+optuna==4.8.0
+skrebate==0.62
+lime==0.2.0.1
+streamlit==1.54.0
+h5py==3.15.1
+numpy==2.4.2
+pandas==2.3.3
+scipy==1.17.0
+specparam==2.0.0rc6
+matplotlib==3.10.8
+joblib==1.5.3
+xgboost==3.2.0
+mne==1.11.0
+scikit-learn==1.8.0
+diptest==0.10.0

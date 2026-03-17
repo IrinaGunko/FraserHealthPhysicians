@@ -1,0 +1,58 @@
+=================================================================
+Model        : physician__Athina__strict__Abnormality
+Trained at   : 2026-03-16T17:57:28.891622
+Samples      : 1721  |  Final features: 72
+Threshold    : 0.7369
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.6663 ± 0.0437
+AUROC    : 0.8401 ± 0.0029
+F1       : 0.6139 ± 0.0025
+Precision: 0.6629
+Recall   : 0.5844
+Brier    : 0.1450
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.708 AUROC=0.841 F1=0.615 P=0.770 R=0.511 thr=0.80 TP=67 FP=20 TN=423 FN=64 n_feat=82
+  Fold 2: AUPRC=0.621 AUROC=0.837 F1=0.611 P=0.636 R=0.588 thr=0.74 TP=77 FP=44 TN=399 FN=54 n_feat=84
+  Fold 3: AUPRC=0.670 AUROC=0.842 F1=0.616 P=0.582 R=0.654 thr=0.40 TP=85 FP=61 TN=382 FN=45 n_feat=80
+
+--- Stability ---
+  AUPRC range : [0.621, 0.708]  std=0.044  stable
+  F1 range    : [0.611, 0.616]  std=0.002
+
+--- Best hyperparameters ---
+  max_depth: 7
+  learning_rate: 0.064609
+  subsample: 0.73144
+  colsample_bytree: 0.818684
+  min_child_weight: 2
+  reg_alpha: 7.045684
+  reg_lambda: 0.334449
+  scale_pos_weight: 3.3903
+  n_estimators: 92
+
+--- Top 10 features by mean |SHAP| ---
+  global_aperiodic_exponent_p95                            0.036286
+  net8_Somatomotor_alpha_peak_bw_p5                        0.028496
+  net8_Visual_aperiodic_exponent_p95                       0.025991
+  global_alpha_peak_pw_median                              0.023257
+  net8_Dorsal_Attention_alpha_peak_pw_median               0.022056
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   0.021941
+  net8_Limbic_aperiodic_exponent_p95                       0.020411
+  net8_Default_Mode_aperiodic_exponent_p95                 0.018174
+  net8_Temporal_Parietal_aperiodic_exponent_p95            0.015962
+  net8_Dorsal_Attention_aperiodic_exponent_p95             0.013529
+
+--- Top 10 features by XGBoost Gain ---
+  global_aperiodic_exponent_p95                            gain=94.27  cover=250.92  weight=26
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   gain=25.20  cover=150.43  weight=27
+  net8_Dorsal_Attention_aperiodic_exponent_p95             gain=15.81  cover=87.54  weight=29
+  net8_Limbic_aperiodic_exponent_p95                       gain=11.34  cover=116.36  weight=45
+  net8_Visual_aperiodic_exponent_p95                       gain=10.48  cover=97.85  weight=46
+  net8_Temporal_Parietal_aperiodic_exponent_p95            gain=9.70  cover=89.98  weight=28
+  net8_Default_Mode_aperiodic_exponent_p95                 gain=8.98  cover=114.51  weight=33
+  net8_Dorsal_Attention_alpha_peak_pw_median               gain=7.66  cover=83.37  weight=61
+  net8_Default_Mode_aperiodic_offset_median                gain=7.18  cover=50.00  weight=12
+  global_alpha_peak_pw_median                              gain=7.02  cover=90.01  weight=63
+=================================================================

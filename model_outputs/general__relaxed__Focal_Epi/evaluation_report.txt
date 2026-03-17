@@ -1,0 +1,58 @@
+=================================================================
+Model        : general__relaxed__Focal_Epi
+Trained at   : 2026-03-16T16:52:43.879810
+Samples      : 34164  |  Final features: 53
+Threshold    : 0.6314
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.1906 ± 0.0087
+AUROC    : 0.6908 ± 0.0107
+F1       : 0.2377 ± 0.0116
+Precision: 0.1914
+Recall   : 0.3256
+Brier    : 0.2435
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.198 AUROC=0.691 F1=0.226 P=0.209 R=0.247 thr=0.54 TP=230 FP=870 TN=9586 FN=702 n_feat=66
+  Fold 2: AUPRC=0.181 AUROC=0.680 F1=0.237 P=0.177 R=0.357 thr=0.63 TP=333 FP=1543 TN=8912 FN=600 n_feat=66
+  Fold 3: AUPRC=0.192 AUROC=0.701 F1=0.250 P=0.188 R=0.373 thr=0.74 TP=348 FP=1508 TN=8947 FN=585 n_feat=69
+
+--- Stability ---
+  AUPRC range : [0.181, 0.198]  std=0.009  stable
+  F1 range    : [0.226, 0.250]  std=0.012
+
+--- Best hyperparameters ---
+  max_depth: 5
+  learning_rate: 0.086209
+  subsample: 0.73144
+  colsample_bytree: 0.788847
+  min_child_weight: 8
+  reg_alpha: 1.799145
+  reg_lambda: 0.385033
+  scale_pos_weight: 11.2102
+  n_estimators: 29
+
+--- Top 10 features by mean |SHAP| ---
+  global_aperiodic_exponent_p95                            0.076292
+  net8_Limbic_alpha_peak_bw_p95                            0.038608
+  net8_Limbic_aperiodic_exponent_median                    0.032573
+  net8_Salience_Ventral_Attention_aperiodic_exponent_medi  0.024656
+  net8_Temporal_Parietal_alpha_peak_cf_median              0.019551
+  n_total                                                  0.017147
+  net8_Default_Mode_aperiodic_exponent_p5                  0.016017
+  net8_Somatomotor_alpha_peak_cf_median                    0.015807
+  net8_Temporal_Parietal_alpha_peak_pw_median              0.013081
+  net8_Default_Mode_alpha_peak_pw_p95                      0.012958
+
+--- Top 10 features by XGBoost Gain ---
+  global_aperiodic_exponent_p95                            gain=236.64  cover=4934.62  weight=83
+  net8_Salience_Ventral_Attention_aperiodic_exponent_medi  gain=132.35  cover=2720.96  weight=66
+  net8_Limbic_alpha_peak_bw_p95                            gain=74.51  cover=2489.20  weight=132
+  net8_Limbic_aperiodic_exponent_median                    gain=64.25  cover=2236.21  weight=84
+  net8_Default_Mode_n                                      gain=54.85  cover=2064.76  weight=19
+  net8_Temporal_Parietal_alpha_peak_cf_median              gain=54.81  cover=2691.92  weight=53
+  n_total                                                  gain=51.48  cover=2105.36  weight=43
+  global_alpha_peak_cf_median                              gain=50.58  cover=2276.05  weight=27
+  net8_Visual_alpha_peak_pw_median                         gain=50.00  cover=1883.78  weight=34
+  net8_Executive_Control_alpha_peak_cf_median              gain=48.59  cover=1393.53  weight=35
+=================================================================

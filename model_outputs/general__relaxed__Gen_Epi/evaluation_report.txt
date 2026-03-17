@@ -1,0 +1,58 @@
+=================================================================
+Model        : general__relaxed__Gen_Epi
+Trained at   : 2026-03-16T16:59:18.998143
+Samples      : 34164  |  Final features: 51
+Threshold    : 0.6665
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.1866 ± 0.0076
+AUROC    : 0.7257 ± 0.0043
+F1       : 0.2273 ± 0.0069
+Precision: 0.1729
+Recall   : 0.3365
+Brier    : 0.1761
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.179 AUROC=0.721 F1=0.219 P=0.179 R=0.282 thr=0.74 TP=196 FP=896 TN=9797 FN=499 n_feat=69
+  Fold 2: AUPRC=0.188 AUROC=0.727 F1=0.231 P=0.169 R=0.361 thr=0.57 TP=251 FP=1232 TN=9461 FN=444 n_feat=69
+  Fold 3: AUPRC=0.194 AUROC=0.729 F1=0.232 P=0.170 R=0.366 thr=0.67 TP=255 FP=1247 TN=9445 FN=441 n_feat=74
+
+--- Stability ---
+  AUPRC range : [0.179, 0.194]  std=0.008  stable
+  F1 range    : [0.219, 0.232]  std=0.007
+
+--- Best hyperparameters ---
+  max_depth: 6
+  learning_rate: 0.044937
+  subsample: 0.741522
+  colsample_bytree: 0.690607
+  min_child_weight: 7
+  reg_alpha: 2.871687
+  reg_lambda: 0.751042
+  scale_pos_weight: 15.3778
+  n_estimators: 92
+
+--- Top 10 features by mean |SHAP| ---
+  net8_Somatomotor_aperiodic_exponent_p95                  0.041718
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   0.031324
+  net8_Visual_alpha_peak_bw_p95                            0.023542
+  net8_Visual_aperiodic_exponent_p95                       0.019562
+  net8_Default_Mode_aperiodic_exponent_median              0.017009
+  net8_Default_Mode_aperiodic_exponent_p95                 0.015793
+  global_aperiodic_exponent_p95                            0.014939
+  net8_Dorsal_Attention_aperiodic_offset_median            0.014800
+  net8_Executive_Control_aperiodic_exponent_p95            0.013020
+  global_alpha_peak_cf_p95                                 0.012871
+
+--- Top 10 features by XGBoost Gain ---
+  global_aperiodic_exponent_p95                            gain=234.09  cover=2645.98  weight=61
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   gain=228.71  cover=2546.32  weight=92
+  net8_Somatomotor_aperiodic_exponent_p95                  gain=165.05  cover=2929.70  weight=128
+  net8_Default_Mode_aperiodic_exponent_p95                 gain=163.45  cover=2129.84  weight=80
+  net8_Visual_alpha_peak_bw_p95                            gain=81.74  cover=1976.19  weight=141
+  global_alpha_peak_bw_median                              gain=76.25  cover=1383.07  weight=85
+  net8_Executive_Control_aperiodic_exponent_p95            gain=76.19  cover=1717.51  weight=81
+  net8_Salience_Ventral_Attention_alpha_peak_bw_median     gain=74.49  cover=1416.90  weight=110
+  net8_Limbic_alpha_peak_bw_median                         gain=63.62  cover=1467.29  weight=132
+  net8_Dorsal_Attention_alpha_peak_bw_median               gain=62.10  cover=1832.10  weight=97
+=================================================================

@@ -1,0 +1,58 @@
+=================================================================
+Model        : general__strict__Focal_Epi
+Trained at   : 2026-03-16T16:15:39.274293
+Samples      : 27531  |  Final features: 50
+Threshold    : 0.6940
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.2116 ± 0.0061
+AUROC    : 0.7464 ± 0.0049
+F1       : 0.2409 ± 0.0098
+Precision: 0.2534
+Recall   : 0.2690
+Brier    : 0.1181
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.218 AUROC=0.749 F1=0.252 P=0.183 R=0.405 thr=0.45 TP=197 FP=878 TN=7812 FN=290 n_feat=76
+  Fold 2: AUPRC=0.211 AUROC=0.749 F1=0.235 P=0.318 R=0.187 thr=0.72 TP=91 FP=195 TN=8495 FN=396 n_feat=79
+  Fold 3: AUPRC=0.206 AUROC=0.741 F1=0.235 P=0.259 R=0.216 thr=0.69 TP=105 FP=301 TN=8389 FN=382 n_feat=66
+
+--- Stability ---
+  AUPRC range : [0.206, 0.218]  std=0.006  stable
+  F1 range    : [0.235, 0.252]  std=0.010
+
+--- Best hyperparameters ---
+  max_depth: 5
+  learning_rate: 0.086835
+  subsample: 0.964359
+  colsample_bytree: 0.684279
+  min_child_weight: 8
+  reg_alpha: 0.190712
+  reg_lambda: 0.006199
+  scale_pos_weight: 17.8439
+  n_estimators: 94
+
+--- Top 10 features by mean |SHAP| ---
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   0.056688
+  net8_Salience_Ventral_Attention_alpha_peak_bw_p95        0.027961
+  net8_Limbic_aperiodic_exponent_p95                       0.025837
+  net8_Temporal_Parietal_aperiodic_offset_p95              0.025790
+  net8_Temporal_Parietal_aperiodic_offset_IQR              0.023963
+  net8_Temporal_Parietal_aperiodic_exponent_p95            0.023035
+  net8_Limbic_alpha_peak_bw_p95                            0.018348
+  net8_Somatomotor_aperiodic_exponent_median               0.016859
+  net8_Default_Mode_alpha_peak_bw_p95                      0.015607
+  net8_Executive_Control_aperiodic_exponent_p5             0.012095
+
+--- Top 10 features by XGBoost Gain ---
+  net8_Salience_Ventral_Attention_aperiodic_exponent_p95   gain=422.30  cover=3989.07  weight=69
+  net8_Temporal_Parietal_aperiodic_exponent_p95            gain=174.33  cover=2220.75  weight=58
+  net8_Salience_Ventral_Attention_alpha_peak_bw_p95        gain=111.13  cover=2860.70  weight=71
+  net8_Limbic_aperiodic_exponent_p95                       gain=102.28  cover=3530.54  weight=73
+  net8_Temporal_Parietal_aperiodic_offset_p95              gain=90.40  cover=2907.52  weight=119
+  net8_Executive_Control_aperiodic_exponent_p95            gain=82.66  cover=2149.09  weight=16
+  net8_Dorsal_Attention_aperiodic_exponent_p95             gain=81.75  cover=2370.42  weight=30
+  global_aperiodic_exponent_p95                            gain=76.84  cover=1446.16  weight=28
+  net8_Temporal_Parietal_aperiodic_offset_IQR              gain=74.55  cover=3514.12  weight=121
+  net8_Executive_Control_alpha_peak_bw_p95                 gain=71.72  cover=1869.65  weight=65
+=================================================================

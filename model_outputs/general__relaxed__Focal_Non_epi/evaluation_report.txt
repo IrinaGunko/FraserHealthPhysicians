@@ -1,0 +1,58 @@
+=================================================================
+Model        : general__relaxed__Focal_Non_epi
+Trained at   : 2026-03-16T17:06:49.107731
+Samples      : 34164  |  Final features: 41
+Threshold    : 0.4192
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.3457 ± 0.0250
+AUROC    : 0.6685 ± 0.0174
+F1       : 0.4133 ± 0.0095
+Precision: 0.3157
+Recall   : 0.6210
+Brier    : 0.2090
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.317 AUROC=0.648 F1=0.403 P=0.275 R=0.752 thr=0.52 TP=1846 FP=4874 TN=4061 FN=607 n_feat=56
+  Fold 2: AUPRC=0.361 AUROC=0.677 F1=0.417 P=0.337 R=0.546 thr=0.42 TP=1340 FP=2632 TN=6303 FN=1113 n_feat=76
+  Fold 3: AUPRC=0.359 AUROC=0.680 F1=0.420 P=0.335 R=0.564 thr=0.41 TP=1384 FP=2749 TN=6186 FN=1069 n_feat=81
+
+--- Stability ---
+  AUPRC range : [0.317, 0.361]  std=0.025  stable
+  F1 range    : [0.403, 0.420]  std=0.009
+
+--- Best hyperparameters ---
+  max_depth: 6
+  learning_rate: 0.066059
+  subsample: 0.681489
+  colsample_bytree: 0.899917
+  min_child_weight: 4
+  reg_alpha: 0.142592
+  reg_lambda: 0.062229
+  scale_pos_weight: 3.6425
+  n_estimators: 69
+
+--- Top 10 features by mean |SHAP| ---
+  net8_Limbic_alpha_peak_cf_median                         0.028790
+  net8_Salience_Ventral_Attention_alpha_peak_bw_p95        0.026037
+  net8_Temporal_Parietal_alpha_peak_cf_median              0.021511
+  net8_Temporal_Parietal_aperiodic_exponent_median         0.020031
+  net8_Somatomotor_alpha_peak_bw_p95                       0.017858
+  net8_Limbic_alpha_peak_cf_p5                             0.012983
+  net8_Limbic_alpha_peak_bw_p95                            0.011684
+  net8_Visual_alpha_peak_pw_p95                            0.011545
+  net8_Visual_alpha_peak_cf_p95                            0.009809
+  net8_Somatomotor_alpha_peak_pw_p95                       0.007856
+
+--- Top 10 features by XGBoost Gain ---
+  net8_Salience_Ventral_Attention_alpha_peak_bw_p95        gain=61.57  cover=1774.86  weight=96
+  net8_Limbic_alpha_peak_cf_median                         gain=54.53  cover=1990.96  weight=95
+  net8_Temporal_Parietal_alpha_peak_cf_median              gain=48.53  cover=1907.20  weight=69
+  net8_Limbic_alpha_peak_cf_p5                             gain=43.51  cover=1556.97  weight=80
+  net8_Somatomotor_alpha_peak_bw_p95                       gain=29.85  cover=2055.11  weight=88
+  net8_Visual_alpha_peak_pw_p95                            gain=28.12  cover=1170.92  weight=62
+  net8_Temporal_Parietal_aperiodic_exponent_median         gain=27.77  cover=1284.35  weight=154
+  net8_Limbic_n                                            gain=27.56  cover=1127.96  weight=29
+  net8_Limbic_alpha_peak_bw_p95                            gain=26.12  cover=914.08  weight=89
+  net8_Dorsal_Attention_alpha_peak_pw_p95                  gain=26.04  cover=793.74  weight=37
+=================================================================

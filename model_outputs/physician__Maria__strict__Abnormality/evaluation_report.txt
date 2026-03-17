@@ -1,0 +1,58 @@
+=================================================================
+Model        : physician__Maria__strict__Abnormality
+Trained at   : 2026-03-16T18:02:32.999432
+Samples      : 3734  |  Final features: 55
+Threshold    : 0.4833
+
+--- Cross-Validation (3 outer / 3 inner folds, 30 Optuna trials) ---
+AUPRC    : 0.6169 ± 0.0371
+AUROC    : 0.7774 ± 0.0126
+F1       : 0.5866 ± 0.0304
+Precision: 0.5166
+Recall   : 0.7046
+Brier    : 0.2197
+
+--- Per-fold ---
+  Fold 1: AUPRC=0.617 AUROC=0.784 F1=0.579 P=0.438 R=0.854 thr=0.48 TP=315 FP=405 TN=471 FN=54 n_feat=73
+  Fold 2: AUPRC=0.580 AUROC=0.763 F1=0.561 P=0.520 R=0.610 thr=0.45 TP=225 FP=208 TN=668 FN=144 n_feat=69
+  Fold 3: AUPRC=0.654 AUROC=0.785 F1=0.620 P=0.593 R=0.650 thr=0.66 TP=240 FP=165 TN=710 FN=129 n_feat=92
+
+--- Stability ---
+  AUPRC range : [0.580, 0.654]  std=0.037  stable
+  F1 range    : [0.561, 0.620]  std=0.030
+
+--- Best hyperparameters ---
+  max_depth: 6
+  learning_rate: 0.030816
+  subsample: 0.750798
+  colsample_bytree: 0.7392
+  min_child_weight: 6
+  reg_alpha: 0.190642
+  reg_lambda: 0.154095
+  scale_pos_weight: 2.3731
+  n_estimators: 33
+
+--- Top 10 features by mean |SHAP| ---
+  net8_Default_Mode_aperiodic_exponent_p95                 0.020197
+  global_aperiodic_exponent_p95                            0.016227
+  net8_Visual_alpha_peak_pw_p95                            0.010522
+  net8_Temporal_Parietal_alpha_peak_cf_p5                  0.006967
+  global_alpha_peak_bw_p95                                 0.006786
+  net8_Dorsal_Attention_alpha_peak_pw_median               0.006086
+  net8_Limbic_alpha_peak_cf_median                         0.004906
+  net8_Limbic_alpha_peak_cf_p5                             0.004543
+  net8_Temporal_Parietal_aperiodic_exponent_p95            0.004389
+  net8_Default_Mode_alpha_peak_bw_p95                      0.004054
+
+--- Top 10 features by XGBoost Gain ---
+  net8_Default_Mode_aperiodic_exponent_p95                 gain=180.29  cover=526.06  weight=16
+  global_aperiodic_exponent_p95                            gain=132.57  cover=422.65  weight=15
+  global_alpha_peak_bw_p95                                 gain=44.55  cover=277.54  weight=18
+  net8_Dorsal_Attention_alpha_peak_pw_median               gain=35.77  cover=197.99  weight=17
+  net8_Visual_alpha_peak_pw_p95                            gain=35.07  cover=233.26  weight=29
+  global_alpha_peak_pw_p95                                 gain=23.60  cover=157.86  weight=11
+  net8_Temporal_Parietal_aperiodic_exponent_p95            gain=22.06  cover=183.68  weight=15
+  global_alpha_peak_pw_median                              gain=22.02  cover=130.32  weight=11
+  net8_Somatomotor_aperiodic_exponent_p5                   gain=21.75  cover=89.65  weight=4
+  net8_Executive_Control_aperiodic_exponent_median         gain=21.12  cover=61.38  weight=4
+=================================================================
