@@ -1,5 +1,3 @@
-
-
 import os
 import tempfile
 from pathlib import Path
@@ -43,7 +41,30 @@ st.markdown("""
         --fh-orange-lt:#F5A623;
         --fh-soft:#DCECF5;
     }
+    /* ── Fix: Expander header text color ───────────────────────────── */
 
+    details[data-testid="stExpander"] summary {
+        color: #00456A !important;   /* Fraser Health navy */
+        font-weight: 700 !important;
+        font-size: 0.9rem;
+    }
+
+    /* arrow icon */
+    details[data-testid="stExpander"] summary svg {
+        color: #00456A !important;
+    }
+
+    /* hover */
+    details[data-testid="stExpander"] summary:hover {
+        color: #006699 !important;
+    }
+
+    /* background of the expander header */
+    details[data-testid="stExpander"] summary {
+        background: #F0F7FF;
+        border-radius: 6px;
+        padding: 6px 10px;
+    }
     .stApp {
         font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
         background: linear-gradient(160deg,#E8F4F8 0%,#D0E8F2 30%,#C2DFF0 60%,#D6EDF5 100%) !important;
@@ -275,6 +296,98 @@ st.markdown("""
     /* ── SHAP bar inside explanation tab ── */
     .shap-pos { color: #B42318; font-weight: 700; }
     .shap-neg { color: #156A3A; font-weight: 700; }
+
+    /* ── Clinical explainer panels ── */
+    .clinical-explainer {
+        background: #F0F7FF;
+        border-left: 4px solid #0091B3;
+        border-radius: 0 8px 8px 0;
+        padding: 0.85rem 1.1rem;
+        margin: 0.3rem 0 0.5rem 0;
+        font-size: 0.875rem;
+        color: #1B2A3D !important;
+        line-height: 1.65;
+    }
+    /* ── Fix: Expander header text color ───────────────────────────── */
+    /* ── Fix: expander header text ───────────────────────────────────────── */
+
+    div[data-testid="stExpander"] summary,
+    div[data-testid="stExpander"] summary *,
+    details[data-testid="stExpander"] summary,
+    details[data-testid="stExpander"] summary * {
+        color: #00456A !important;
+        fill: #00456A !important;
+    }
+
+    div[data-testid="stExpander"] summary p,
+    div[data-testid="stExpander"] summary span,
+    div[data-testid="stExpander"] summary div,
+    details[data-testid="stExpander"] summary p,
+    details[data-testid="stExpander"] summary span,
+    details[data-testid="stExpander"] summary div {
+        color: #00456A !important;
+        margin: 0 !important;
+    }
+
+    div[data-testid="stExpander"] summary,
+    details[data-testid="stExpander"] summary {
+        background: #F0F7FF !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+    }
+
+    div[data-testid="stExpander"] summary:hover,
+    details[data-testid="stExpander"] summary:hover {
+        color: #006699 !important;
+    }
+
+    div[data-testid="stExpander"] summary svg,
+    details[data-testid="stExpander"] summary svg {
+        color: #00456A !important;
+        fill: #00456A !important;
+    }
+    details[data-testid="stExpander"] summary {
+        color: #00456A !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem;
+        background: #F0F7FF;
+        border-radius: 6px;
+        padding: 6px 10px;
+    }
+
+    details[data-testid="stExpander"] summary svg {
+        color: #00456A !important;
+    }
+
+    details[data-testid="stExpander"] summary:hover {
+        color: #006699 !important;
+    }
+    .clinical-explainer strong {
+        color: #00456A;
+    }
+
+    .clinical-explainer .legend-row {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.82rem;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
 
     .footer-authors {
         background:rgba(255,255,255,0.7);
@@ -560,6 +673,24 @@ with st.sidebar:
         )
 
 # ══════════════════════════════════════════════════════════════════════════════
+# CLINICAL EXPLAINER HELPER
+# ══════════════════════════════════════════════════════════════════════════════
+
+def clinical_explainer(key: str, label: str, content_html: str):
+    """
+    Render a collapsible 'How to read this' panel.
+    key    : unique Streamlit expander key
+    label  : short title shown on the collapsed bar
+    content_html : HTML string rendered inside .clinical-explainer div
+    """
+    with st.expander(f"ℹ️ How to read this — {label}", expanded=False):
+        st.markdown(
+            f'<div class="clinical-explainer">{content_html}</div>',
+            unsafe_allow_html=True,
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -721,13 +852,7 @@ def _threshold_bar_html(bar_marks: list) -> str:
         for x0, x1, c in segs
     )
 
-    cx_thr = W // 2
-    centre = (
-        f'<line x1="{cx_thr}" y1="{TOP_PAD - 10}" x2="{cx_thr}" y2="{TOP_PAD + H + 12}" '
-        f'stroke="#2C3E50" stroke-width="2" stroke-dasharray="5 4"/>'
-        f'<text x="{cx_thr}" y="{TOP_PAD + H + 26}" text-anchor="middle" '
-        f'font-size="12" fill="#2C3E50" font-weight="700">threshold</text>'
-    )
+    centre = ""
 
     mark_colours = ["#00456A", "#006699", "#0091B3", "#E87722", "#8B4513", "#721C24", "#7C3AED"]
 
@@ -788,18 +913,13 @@ def _threshold_bar_html(bar_marks: list) -> str:
 def _score_bars_html(rows: list[dict]) -> str:
     """
     Horizontal 0–100 score bars.
-
-    Score = sigmoid(raw_log_odds) × 100.  50 = threshold boundary.
-    Bar fills left→right; left half green zone, right half red zone.
-
-    Each row dict:  physician, label_mode, target, raw_score, probability, threshold, call
     """
     import math as _math
 
-    BAR_W   = 520          # total bar track width (0–100 maps here)
+    BAR_W   = 520
     ROW_H   = 36
-    L_PAD   = 200          # label column
-    R_PAD   = 58           # score number + badge
+    L_PAD   = 200
+    R_PAD   = 58
     TOTAL_W = L_PAD + BAR_W + R_PAD
     TOP_PAD = 16
     BAR_H   = 13
@@ -809,14 +929,13 @@ def _score_bars_html(rows: list[dict]) -> str:
         return 100.0 / (1.0 + _math.exp(-logit))
 
     def _bar_color(s100: float) -> str:
-        """Colour based on distance from 50."""
         d = s100 - 50
-        if d >= 30:  return "#A93226"   # very abnormal
-        if d >= 10:  return "#E74C3C"   # abnormal
-        if d >= 0:   return "#F1948A"   # just over
-        if d >= -10: return "#82E0AA"   # just under
-        if d >= -30: return "#2ECC71"   # normal
-        return "#1A7A40"                # very normal
+        if d >= 30:  return "#A93226"
+        if d >= 10:  return "#E74C3C"
+        if d >= 0:   return "#F1948A"
+        if d >= -10: return "#82E0AA"
+        if d >= -30: return "#2ECC71"
+        return "#1A7A40"
 
     def _num_color(s100: float) -> str:
         d = s100 - 50
@@ -830,7 +949,6 @@ def _score_bars_html(rows: list[dict]) -> str:
         "Abnormal":   ("#F8D7DA", "#721C24"),
     }
 
-    # Group + sort
     gen_rows  = sorted([r for r in rows if r["physician"] == "general"],  key=lambda r: r["target"])
     phys_rows = sorted([r for r in rows if r["physician"] != "general"],  key=lambda r: (r["physician"], r["target"]))
     all_rows  = gen_rows + phys_rows
@@ -839,12 +957,10 @@ def _score_bars_html(rows: list[dict]) -> str:
     SVG_H     = TOP_PAD + n * ROW_H + (SEP_H if has_sep else 0) + 24
 
     def _px(s100: float) -> float:
-        """Map 0–100 score to bar x pixel."""
         return L_PAD + (s100 / 100.0) * BAR_W
 
     lines = []
 
-    # Axis tick lines and labels: 0, 25, 50, 75, 100
     for v in [0, 25, 50, 75, 100]:
         tx   = _px(v)
         is50 = (v == 50)
@@ -855,13 +971,7 @@ def _score_bars_html(rows: list[dict]) -> str:
             f'<line x1="{tx:.1f}" y1="{TOP_PAD - 10}" x2="{tx:.1f}" y2="{SVG_H - 14}" '
             f'stroke="{col}" stroke-width="{sw}" stroke-dasharray="{dash}"/>'
         )
-        label = "threshold" if is50 else str(v)
-        lines.append(
-            f'<text x="{tx:.1f}" y="{SVG_H - 2}" text-anchor="middle" '
-            f'font-size="9" fill="#8B9DB3">{label}</text>'
-        )
 
-    # Direction labels
     lines.append(
         f'<text x="{_px(12):.1f}" y="{TOP_PAD - 2}" text-anchor="middle" '
         f'font-size="9" fill="#2ECC71">← normal</text>'
@@ -873,7 +983,6 @@ def _score_bars_html(rows: list[dict]) -> str:
 
     row_offset = 0
     for i, r in enumerate(all_rows):
-        # separator between general and physician blocks
         if has_sep and i == len(gen_rows):
             row_offset += SEP_H
             sep_y = TOP_PAD + i * ROW_H + row_offset - SEP_H // 2
@@ -885,13 +994,11 @@ def _score_bars_html(rows: list[dict]) -> str:
         y     = TOP_PAD + i * ROW_H + row_offset
         mid_y = y + ROW_H / 2
 
-        # zebra
         if i % 2 == 0:
             lines.append(
                 f'<rect x="0" y="{y:.1f}" width="{TOTAL_W}" height="{ROW_H}" fill="#F7FAFC"/>'
             )
 
-        # labels
         is_general = r["physician"] == "general"
         phys_label = "general" if is_general else r["physician"]
         tgt_short  = (r["target"]
@@ -910,23 +1017,19 @@ def _score_bars_html(rows: list[dict]) -> str:
             f'{tgt_short}</text>'
         )
 
-        # compute score
         s100    = _sigmoid100(r["raw_score"])
         bar_px  = _px(s100)
         bar_y   = mid_y - BAR_H / 2
 
-        # green half of track (0–50)
         lines.append(
             f'<rect x="{L_PAD:.1f}" y="{bar_y:.1f}" width="{BAR_W/2:.1f}" '
             f'height="{BAR_H}" fill="#E8F5E9" rx="3"/>'
         )
-        # red half of track (50–100)
         lines.append(
             f'<rect x="{_px(50):.1f}" y="{bar_y:.1f}" width="{BAR_W/2:.1f}" '
             f'height="{BAR_H}" fill="#FDECEA" rx="3"/>'
         )
 
-        # filled bar from left edge to score position
         fill_w  = max(bar_px - L_PAD, 1.0)
         bar_col = _bar_color(s100)
         lines.append(
@@ -934,13 +1037,11 @@ def _score_bars_html(rows: list[dict]) -> str:
             f'height="{BAR_H}" fill="{bar_col}" rx="3" opacity="0.82"/>'
         )
 
-        # marker dot at exact score position
         lines.append(
             f'<circle cx="{bar_px:.1f}" cy="{mid_y:.1f}" r="5" '
             f'fill="{bar_col}" stroke="white" stroke-width="1.5"/>'
         )
 
-        # score number
         num_col = _num_color(s100)
         lines.append(
             f'<text x="{L_PAD + BAR_W + 7}" y="{mid_y + 1:.1f}" '
@@ -948,7 +1049,6 @@ def _score_bars_html(rows: list[dict]) -> str:
             f'font-family="monospace">{s100:.0f}</text>'
         )
 
-        # call badge
         c_bg, c_fg = call_badge.get(r["call"], ("#F0F0F0", "#333"))
         bx = TOTAL_W - 13
         lines.append(
@@ -988,32 +1088,22 @@ def _score_bars_html(rows: list[dict]) -> str:
 
 def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
                           n_display: int = 15) -> str:
-    """
-    Pure-SVG SHAP waterfall for a single sample.
-
-    feature_names : list[str]
-    shap_values   : np.ndarray of float, same length
-    base_value    : float  (expected model output / base log-odds)
-    final_value   : float  (raw score = base + sum(shap))
-    """
     vals  = np.asarray(shap_values, dtype=float)
     names = list(feature_names)
 
-    # Sort by |SHAP| descending, take top n_display
     order = np.argsort(np.abs(vals))[::-1][:n_display]
     vals  = vals[order]
     names = [names[i] for i in order]
 
-    # Sort ascending so largest bar is at top
     order2 = np.argsort(vals)
     vals   = vals[order2]
     names  = [names[i] for i in order2]
 
     BAR_H   = 22
     GAP     = 4
-    L_PAD   = 260      # left margin for feature name
-    R_PAD   = 90       # right margin for value label
-    BAR_W   = 380      # total width of the bar region
+    L_PAD   = 260
+    R_PAD   = 90
+    BAR_W   = 380
     TOP_PAD = 40
     BOT_PAD = 50
     n       = len(vals)
@@ -1021,9 +1111,8 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
     SVG_W   = L_PAD + BAR_W + R_PAD
 
     max_abs = max(np.abs(vals).max(), 1e-6)
-    scale   = (BAR_W * 0.45) / max_abs   # half the bar width for max value
+    scale   = (BAR_W * 0.45) / max_abs
 
-    # Centre line at L_PAD + BAR_W/2
     cx = L_PAD + BAR_W / 2
 
     bars_svg  = ""
@@ -1035,18 +1124,15 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
         bar_x  = cx if v >= 0 else cx + v * scale
         bar_w  = abs(v) * scale
         color  = "#E74C3C" if v >= 0 else "#2ECC71"
-        # feature name
         texts_svg += (
             f'<text x="{L_PAD - 8}" y="{y + BAR_H/2 + 4:.0f}" '
             f'text-anchor="end" font-size="11" fill="#1B2A3D">'
             f'{name[:40]}</text>'
         )
-        # bar
         bars_svg += (
             f'<rect x="{bar_x:.1f}" y="{y}" width="{max(bar_w,1):.1f}" height="{BAR_H}" '
             f'fill="{color}" rx="3" opacity="0.85"/>'
         )
-        # value label
         label_x = bar_x + bar_w + 5 if v >= 0 else bar_x - 5
         anchor  = "start" if v >= 0 else "end"
         texts_svg += (
@@ -1055,7 +1141,6 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
             f'{v:+.3f}</text>'
         )
 
-    # Centre line
     line_h  = TOP_PAD - 10 + n * (BAR_H + GAP) + BOT_PAD
     centre_line = (
         f'<line x1="{cx:.1f}" y1="{TOP_PAD - 15}" x2="{cx:.1f}" y2="{line_h}" '
@@ -1064,7 +1149,6 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
         f'font-size="10" fill="#5A6B7D">E[f(x)]={base_value:+.3f}</text>'
     )
 
-    # Final score annotation
     final_x   = cx + final_value * scale
     final_x   = max(L_PAD + 4, min(SVG_W - R_PAD - 4, final_x))
     final_ann = (
@@ -1089,11 +1173,10 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
 
 
 def _shap_bar_html(feature_names, mean_abs_shap, n_display: int = 20) -> str:
-    """Horizontal bar chart of mean |SHAP| values."""
     vals  = np.asarray(mean_abs_shap, dtype=float)
     names = list(feature_names)
 
-    order = np.argsort(vals)[-n_display:]   # bottom n → ascending so top is at top in SVG
+    order = np.argsort(vals)[-n_display:]
     vals  = vals[order]
     names = [names[i] for i in order]
 
@@ -1113,7 +1196,7 @@ def _shap_bar_html(feature_names, mean_abs_shap, n_display: int = 20) -> str:
     bars_svg  = ""
     texts_svg = ""
     for i, (v, name) in enumerate(zip(vals, names)):
-        y = TOP_PAD + (n - 1 - i) * (BAR_H + GAP)   # flip so highest is at top
+        y = TOP_PAD + (n - 1 - i) * (BAR_H + GAP)
         texts_svg += (
             f'<text x="{L_PAD - 8}" y="{y + BAR_H/2 + 4:.0f}" '
             f'text-anchor="end" font-size="11" fill="#1B2A3D">{name[:40]}</text>'
@@ -1141,10 +1224,6 @@ def _shap_bar_html(feature_names, mean_abs_shap, n_display: int = 20) -> str:
 
 
 def _get_shap_for_new_vector(entry: dict, model_dir: Path, params_df: pd.DataFrame):
-    """
-    Run SHAP on the current input vector using the saved explainer.
-    Returns (shap_values_1d, base_value, raw_score, feature_names) or None on failure.
-    """
     try:
         import joblib, xgboost as xgb
 
@@ -1157,30 +1236,26 @@ def _get_shap_for_new_vector(entry: dict, model_dir: Path, params_df: pd.DataFra
         if not final_feats:
             return None
 
-        # Build input vector — align to model feature list
         available = [f for f in final_feats if f in params_df.columns]
         if not available:
             return None
 
         X_new = params_df[available].values.astype(np.float32)
-        # Pad missing features with 0
         if len(available) < len(final_feats):
             full = np.zeros((1, len(final_feats)), dtype=np.float32)
             idx  = [final_feats.index(f) for f in available]
             full[0, idx] = X_new[0]
             X_new = full
 
-        # Raw score via XGBoost DMatrix
         model = xgb.XGBClassifier()
         model.load_model(str(model_path))
         dmat       = xgb.DMatrix(X_new, feature_names=final_feats)
         raw_score  = float(model.get_booster().predict(dmat, output_margin=True)[0])
 
-        # SHAP values
         explainer  = joblib.load(str(explainer_path))
         shap_out   = explainer(X_new)
         shap_vals  = shap_out.values
-        if shap_vals.ndim == 3:          # multi-output
+        if shap_vals.ndim == 3:
             shap_vals = shap_vals[:, :, 1]
         shap_1d    = shap_vals[0]
 
@@ -1207,7 +1282,7 @@ def _empty(icon, title):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# MAIN TABS  (3 tabs now)
+# MAIN TABS
 # ══════════════════════════════════════════════════════════════════════════════
 tab_pred, tab_explain, tab_model = st.tabs([
     "📊  Predictions",
@@ -1255,6 +1330,26 @@ with tab_pred:
                 f"Dr. {sel_phys} · {sel_mode} shown as orange dashed needle on Abnormality gauge."
             )
 
+        # ── Explainer: Model Groups & Modes ──────────────────────────────────
+        clinical_explainer(
+            key="pred_groups",
+            label="Model Groups & Modes",
+            content_html="""
+<strong>General model</strong> was trained on EEG recordings from all physicians combined,
+giving the broadest possible view of what abnormality looks like in this dataset.
+<strong>Per-physician models</strong> were trained only on recordings labelled by that
+specific physician — they capture each clinician's individual interpretation style and
+threshold for calling a finding abnormal. Neither is definitively "correct"; they are
+complementary perspectives.<br><br>
+<strong>Strict mode</strong> uses only unambiguous cases: label 1 (clearly normal) and
+label 4 (clearly abnormal). Labels 2 and 3 are excluded from training.
+This tends to produce higher-confidence predictions but on a narrower definition of abnormality.<br>
+<strong>Relaxed mode</strong> treats labels 1 &amp; 2 as normal and labels 3 &amp; 4 as abnormal,
+including borderline cases in training. The model learns a broader, more inclusive concept of
+abnormality and is better at detecting subtle findings.
+""",
+        )
+
         st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
         gview = get_view(ar, "general", sel_mode)
@@ -1296,6 +1391,27 @@ The dashed centre line marks the threshold. Left of centre = more normal. Right 
 </div></body></html>"""
             components.html(bar_html, height=300, scrolling=False)
 
+        # ── Explainer: Abnormality Spectrum bar ───────────────────────────────
+        clinical_explainer(
+            key="pred_spectrum",
+            label="Abnormality Spectrum chart",
+            content_html="""
+<strong>What this shows:</strong> A single horizontal gradient strip ranging from
+green (normal) on the left to red (abnormal) on the right. Each dot/marker represents
+one predictive model. Its position is determined by how far the model's predicted
+probability sits above or below that model's own decision threshold.<br>
+<strong>Colour zones:</strong><br>
+🟢 Dark green (far left) — strongly normal &nbsp;|&nbsp;
+🟡 Yellow-green — mildly normal &nbsp;|&nbsp;
+🟡 Yellow — near threshold / borderline &nbsp;|&nbsp;
+🟠 Orange — mildly abnormal &nbsp;|&nbsp;
+🔴 Red (far right) — strongly abnormal<br>
+<strong>Clinical takeaway:</strong> If all markers cluster to the left, the recording
+is consistently viewed as normal. If markers scatter on both sides, models disagree —
+this borderline recording warrants careful human review.
+""",
+        )
+
         st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
         # ── Gauge cards ───────────────────────────────────────────────────────
@@ -1334,10 +1450,29 @@ The dashed centre line marks the threshold. Left of centre = more normal. Right 
 </body></html>"""
         components.html(gauges_html, height=275, scrolling=False)
 
+        # ── Explainer: Gauge dials ────────────────────────────────────────────
+        clinical_explainer(
+            key="pred_gauges",
+            label="Gauge dials — Predictions by Category",
+            content_html="""
+<strong>Each dial represents one EEG category.</strong> Think of it like a speedometer:
+the needle points to the model's estimated probability (0 = definitely normal, 1 = definitely
+abnormal). The coloured arc is divided into three zones:<br><br>
+&nbsp;&nbsp;🟢 <strong>Green (left arc)</strong> — probability is comfortably below the threshold → <em>Normal</em><br>
+&nbsp;&nbsp;🟡 <strong>Yellow (centre band)</strong> — probability is close to the threshold → <em>Borderline</em> (±6% around threshold)<br>
+&nbsp;&nbsp;🔴 <strong>Red (right arc)</strong> — probability is comfortably above the threshold → <em>Abnormal</em><br><br>
+The <strong>black tick mark</strong> on the arc shows exactly where the threshold sits for this
+model. The <strong>solid dark needle</strong> is the general model's prediction.
+If a physician model is selected, an <strong>orange dashed needle</strong> appears on the
+Abnormality dial showing that physician's read.<br>
+<strong>p =</strong> probability output by the model &nbsp;|&nbsp;
+<strong>thr =</strong> decision threshold chosen during training to optimise F1 score on held-out data.
+""",
+        )
+
         st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
-        # ── Raw Score Bars (below gauges, collapsed by default) ──────────────
-
+        # ── Raw Score Bars ────────────────────────────────────────────────────
         score_rows = []
         for mid_key, ent in ar.items():
             if not ent.get("available") or not ent.get("result"):
@@ -1347,7 +1482,6 @@ The dashed centre line marks the threshold. Left of centre = more normal. Right 
             phys = meta.get("physician", mid_key.split("__")[0])
             mode = meta.get("label_mode", "")
             tgt  = meta.get("target", "")
-            # filter by the mode radio already selected by user
             if mode != sel_mode:
                 continue
             prob   = float(r["probability"])
@@ -1376,9 +1510,27 @@ The dashed centre line marks the threshold. Left of centre = more normal. Right 
                     scrolling=False,
                 )
 
+                # ── Explainer: Score Bars ────────────────────────────────────
+                clinical_explainer(
+                    key="pred_scorebars",
+                    label="Model Score bars",
+                    content_html="""
+<strong>What the score means:</strong> Each horizontal bar represents one model's output
+for this recording. The score shown (0–100) is derived from the model's internal
+<em>log-odds</em> — a measure of how strongly the model leans toward abnormal versus normal
+— converted to a 0–100 scale using the sigmoid (S-shaped) function:<br><br>
+<code>Score = sigmoid(log-odds) × 100</code><br>0 = maximally normal · 100 = maximally abnormal. The threshold is Optuna-tuned. Its position on this scale = threshold × 100<br>
+<strong>Badge letters:</strong> <strong style="color:#155724;">N</strong> = Normal &nbsp;|&nbsp;
+<strong style="color:#856404;">B</strong> = Borderline &nbsp;|&nbsp;
+<strong style="color:#721C24;">A</strong> = Abnormal<br><br>
+General model rows appear in <strong style="color:#00456A;">navy</strong>;
+physician-specific model rows appear in <strong style="color:#E87722;">orange</strong>.
+""",
+                )
+
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — EXPLANATIONS  (new tab)
+# TAB 2 — EXPLANATIONS
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_explain:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
@@ -1395,7 +1547,30 @@ with tab_explain:
             unsafe_allow_html=True,
         )
 
-        # Model selector
+        # ── Explainer: What is SHAP? ──────────────────────────────────────────
+        clinical_explainer(
+            key="explain_shap_intro",
+            label="What is SHAP and why does it matter?",
+            content_html="""
+<strong>SHAP (SHapley Additive exPlanations)</strong> is a method that answers the question:
+<em>"For this specific patient's EEG, which signal features drove the model's decision — and by how much?"</em><br><br>
+The underlying model (XGBoost) is a <strong>gradient-boosted decision tree</strong> — an ensemble
+of hundreds of simple decision rules that each learn from the mistakes of the previous ones.
+The final prediction is the weighted sum of all those rules, which makes it powerful but
+opaque. SHAP opens the "black box" by assigning each input feature a credit (positive or
+negative) for the model's final score, using a mathematically rigorous framework borrowed
+from game theory (Shapley values).<br><br>
+<strong>Key concept — the baseline:</strong> SHAP compares each feature's actual value
+against what the model would predict <em>on average</em> across all training recordings
+(called E[f(x)], the expected model output). A feature's SHAP value is how much it shifted
+the prediction away from that average.<br><br>
+<strong>Why this matters clinically:</strong> Rather than simply saying "abnormal",
+the model can now show <em>which frequency bands, which brain regions, and which signal
+characteristics</em> are most unusual in this recording — providing a starting point for
+the reviewing neurophysiologist.
+""",
+        )
+
         ec1, ec2, ec3 = st.columns([2, 1, 1])
         with ec1:
             st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Group</div>', unsafe_allow_html=True)
@@ -1438,7 +1613,6 @@ with tab_explain:
             thr       = float(ex_result["threshold"])
             call, _   = _classify_call(prob, thr, band=0.06)
 
-            # ── Summary card ─────────────────────────────────────────────────
             xc1, xc2, xc3, xc4 = st.columns(4)
             raw_sc = float(ex_result.get(
                 "raw_score",
@@ -1466,7 +1640,31 @@ with tab_explain:
             _xmc(xc4, "Features Used", str(ex_meta.get("n_features_final", "—")),
                  "after ReliefF consensus")
 
-            # Interpretation sentence
+            # ── Explainer: Summary metric cards ──────────────────────────────
+            clinical_explainer(
+                key="explain_metrics_cards",
+                label="Summary metric cards",
+                content_html="""
+<strong>Prediction</strong> — the model's verdict for this recording: Normal, Borderline, or Abnormal.
+Borderline means the predicted probability falls within ±6% of the model's threshold; clinical
+review is particularly important in these cases.<br><br>
+<strong>Raw Score (log-odds)</strong> — the model's internal "voice" before it is
+converted to a probability. Positive values lean abnormal; negative values lean normal.
+A value of 0 means 50% probability (pure uncertainty). The magnitude matters:
++2.0 is far more confident than +0.2.<br>
+&nbsp;&nbsp;Formula: <code>probability = 1 / (1 + e<sup>−raw_score</sup>)</code><br><br>
+<strong>CV AUPRC (Area Under the Precision-Recall Curve)</strong> — the model's overall quality
+measured during cross-validation. This metric is particularly informative for imbalanced datasets
+(where abnormal EEGs are the minority). A value of 1.0 is perfect; 0.5 is no better than
+chance for a balanced dataset. Values above 0.75 are generally considered good for clinical AI
+screening tools.<br><br>
+<strong>Features Used</strong> — how many EEG signal features the model actually relies on,
+after feature selection. Features are alpha-band spectral parameters (peak frequency,
+power, bandwidth, etc.) measured across brain regions (parcels). Fewer features means a
+more parsimonious, generalisable model.
+""",
+            )
+
             direction = "toward abnormal" if raw_sc > 0 else "toward normal"
             confidence = "high confidence" if abs(raw_sc) > 1.5 else \
                          "moderate confidence" if abs(raw_sc) > 0.5 else "near the decision boundary"
@@ -1509,42 +1707,124 @@ with tab_explain:
                     scrolling=False,
                 )
 
+                # ── Explainer: SHAP Waterfall ─────────────────────────────────
+                clinical_explainer(
+                    key="explain_waterfall",
+                    label="SHAP Waterfall chart — this recording",
+                    content_html="""
+<strong>What this shows:</strong> The waterfall chart explains <em>this specific recording's</em>
+model output, feature by feature. It answers: "Which EEG signal features pushed the model toward
+abnormal, and which pushed it toward normal — and by how much?"<br><br>
+<strong>How to read it:</strong><br>
+&nbsp;&nbsp;• The <strong>vertical dashed line labelled E[f(x)]</strong> is the model's average
+predicted probability over a reference set of 200 training recordings — the baseline before any
+features of this recording are considered.<br>
+&nbsp;&nbsp;• Each <strong>horizontal bar</strong> shows one feature's contribution to the
+predicted probability for this recording:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;— <span style="color:#E74C3C;">🔴 Red bar (positive value)</span> = this
+feature <em>increased</em> the predicted probability, pushing toward abnormal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;— <span style="color:#2ECC71;">🟢 Green bar (negative value)</span> = this
+feature <em>decreased</em> the predicted probability, pushing toward normal<br>
+&nbsp;&nbsp;• The <strong>bar length</strong> shows the magnitude — a longer bar means a stronger
+influence on the probability.<br>
+&nbsp;&nbsp;• Features are sorted by signed SHAP value: the <strong>strongest normal-pushing
+features appear at the top</strong> (most negative, green), the <strong>strongest
+abnormal-pushing features appear at the bottom</strong> (most positive, red).<br>
+&nbsp;&nbsp;• The <strong>blue dashed line labelled f(x)</strong> is the model's raw log-odds
+score for this recording, shown for reference. Note: SHAP bars are in probability units
+while f(x) is in log-odds — they are not directly additive.<br><br>
+<strong>What are the features?</strong> Each feature is an alpha-band spectral parameter
+extracted from the EEG signal and summarised across brain regions (parcels). Examples include:<br>
+&nbsp;&nbsp;— <em>alpha_peak_cf</em>: centre frequency of the dominant alpha peak (typically 8–13 Hz)<br>
+&nbsp;&nbsp;— <em>alpha_peak_pw</em>: power of the alpha peak above the aperiodic background<br>
+&nbsp;&nbsp;— <em>alpha_peak_bw</em>: bandwidth (spectral width) of the alpha peak<br>
+&nbsp;&nbsp;— <em>aperiodic_exponent</em>: slope of the 1/f background spectrum<br><br>
+<strong>Clinical interpretation:</strong> The features with the longest bars — whether green
+(top) or red (bottom) — had the largest influence on this recording's prediction. If a
+posterior parcel shows a large red bar for alpha power, the model found that region's alpha
+to be unusually low relative to what it learned from training — consistent with posterior
+alpha attenuation. Use the highest-magnitude bars to direct your review to the most
+informative channels and frequency bands in the raw EEG.
+""",
+                )
+
                 st.caption(
-                    "🔵 Green bars push toward **normal** (negative SHAP). "
+                    "🟢 Green bars push toward **normal** (negative SHAP). "
                     "🔴 Red bars push toward **abnormal** (positive SHAP). "
-                    "E[f(x)] = expected model output over training data. "
-                    "f(x) = actual log-odds for this recording."
                 )
 
                 st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
                 # Top contributors table
-                st.markdown('<h4 style="color:#00456A;">Top Feature Contributions — Ranked</h4>', unsafe_allow_html=True)
-                order_table = np.argsort(np.abs(shap_1d))[::-1][:30]
-                rows_table  = []
-                for idx in order_table:
-                    v    = float(shap_1d[idx])
-                    rows_table.append({
-                        "Feature": feat_names[idx],
-                        "SHAP Value": f"{v:+.4f}",
-                        "Direction": "▲ abnormal" if v > 0 else "▼ normal",
-                        "|SHAP|": round(abs(v), 4),
-                    })
-                shap_table_df = pd.DataFrame(rows_table)
-                st.dataframe(
-                    shap_table_df.style
-                        .applymap(
-                            lambda v: "color:#B42318;font-weight:700" if "▲" in str(v)
-                                      else ("color:#156A3A;font-weight:700" if "▼" in str(v) else ""),
-                            subset=["Direction"],
-                        ),
-                    use_container_width=True,
-                    hide_index=True,
+                # Top contributors table — collapsible
+                with st.expander("📋 Top Feature Contributions — Ranked", expanded=False):
+                    order_table = np.argsort(np.abs(shap_1d))[::-1][:30]
+                    rows_table  = []
+                    for idx in order_table:
+                        v = float(shap_1d[idx])
+                        rows_table.append({
+                            "Feature":    feat_names[idx],
+                            "SHAP Value": f"{v:+.4f}",
+                            "Direction":  "▲ abnormal" if v > 0 else "▼ normal",
+                            "|SHAP|":     round(abs(v), 4),
+                        })
+                    shap_table_df = pd.DataFrame(rows_table)
+                    st.dataframe(
+                        shap_table_df.style
+                            .set_properties(**{
+                                "background-color": "#F8FAFC",
+                                "color":            "#1B2A3D",
+                                "font-size":        "13px",
+                            })
+                            .set_properties(
+                                subset=["Feature"],
+                                **{"font-weight": "600", "color": "#00456A"},
+                            )
+                            .applymap(
+                                lambda v: "color:#B42318;font-weight:700;background-color:#FEF2F2"
+                                        if "▲" in str(v)
+                                        else ("color:#156A3A;font-weight:700;background-color:#F0FDF4"
+                                                if "▼" in str(v) else ""),
+                                subset=["Direction"],
+                            )
+                            .set_table_styles([{
+                                "selector": "thead tr th",
+                                "props":    [("background-color", "#E8F0F5"),
+                                            ("color", "#00456A"),
+                                            ("font-weight", "700"),
+                                            ("font-size", "12px")],
+                            }]),
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+                # ── Explainer: Top contributions table ────────────────────────
+                clinical_explainer(
+                    key="explain_shap_table",
+                    label="Top Feature Contributions table",
+                    content_html="""
+<strong>What this table shows:</strong> The same information as the waterfall chart but in tabular
+form, ranked by the absolute size of each feature's influence (|SHAP|), largest first.<br><br>
+<strong>Columns explained:</strong><br>
+&nbsp;&nbsp;• <strong>Feature</strong> — the EEG signal parameter name.
+The naming convention is: <code>[spectral_property]_[brain_region/parcel_number]</code>.
+Brain regions (parcels) correspond to the Schaefer 400-parcel cortical atlas, which divides
+the cortex into 400 regions of interest.<br>
+&nbsp;&nbsp;• <strong>SHAP Value</strong> — the contribution in log-odds units. Adding up all SHAP
+values plus the baseline E[f(x)] gives the final raw score f(x).<br>
+&nbsp;&nbsp;• <strong>Direction</strong> — ▲ Abnormal means this feature pushes toward abnormal;
+▼ Normal means it pushes toward normal.<br>
+&nbsp;&nbsp;• <strong>|SHAP|</strong> — the absolute magnitude, used for ranking. A value of 0.5 means
+this feature shifted the log-odds by 0.5 units (approximately 12% probability shift near the threshold).<br><br>
+<strong>Practical use:</strong> Sort by |SHAP| to find the most influential features.
+Cross-reference the top features with the raw EEG trace — the channel and frequency region
+highlighted here is where the model found the most deviation from normal.
+""",
                 )
 
                 st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
-                # Model-level mean |SHAP| bar (from saved CSV, for context)
+                # Model-level mean |SHAP| bar
                 shap_csv = ex_dir / "shap_feature_importance.csv"
                 if shap_csv.exists():
                     st.markdown(
@@ -1563,6 +1843,31 @@ with tab_explain:
                         height=60 + min(20, len(shap_df)) * 26,
                         scrolling=False,
                     )
+
+                    # ── Explainer: Mean |SHAP| bar chart ─────────────────────
+                    clinical_explainer(
+                        key="explain_mean_shap",
+                        label="Mean |SHAP| — model-level feature importance",
+                        content_html="""
+<strong>What this shows:</strong> Unlike the waterfall (which is specific to <em>this recording</em>),
+this bar chart shows which features are <em>generally</em> most important across all recordings
+in the training set. It is the average of the absolute SHAP values for each feature, computed
+over every training sample.<br><br>
+<strong>How to read it:</strong> Features with the longest bars were consistently the most
+influential across many different EEG recordings — they are the model's "go-to" signals
+for distinguishing normal from abnormal EEGs in this dataset.<br><br>
+<strong>Compare with the waterfall above:</strong> If the top features here also appear
+prominently in this recording's waterfall, this patient is following the typical pattern the
+model learned. If the top features here are absent from this recording's waterfall, the model
+is relying on unusual features to make its decision — which may warrant extra scrutiny.<br><br>
+<strong>Feature naming:</strong> Features are named as <code>[property]_[parcel]</code>
+where the property is an alpha-band spectral descriptor (centre frequency, power, bandwidth,
+aperiodic exponent, etc.) and the parcel is a brain region from the Schaefer 400 cortical
+atlas. Parcels in posterior occipital and parietal regions tend to dominate for alpha-related
+pathology; frontal parcels may dominate for slowing or encephalopathy.
+""",
+                    )
+
                     st.caption(
                         "This shows which features are *generally* most predictive across training data. "
                         "Compare against the waterfall above to see if this recording follows the typical pattern."
@@ -1588,6 +1893,28 @@ with tab_explain:
 
                 with st.expander(f"📋 {len(snap_df)} model features for this recording", expanded=False):
                     st.dataframe(snap_df, use_container_width=True, hide_index=True)
+
+                    # ── Explainer: Input feature vector ───────────────────────
+                    clinical_explainer(
+                        key="explain_input_vector",
+                        label="Input Feature Vector table",
+                        content_html="""
+<strong>What this table shows:</strong> The raw numeric values of every feature the model
+received as input for this specific recording, sorted by their |SHAP| importance.<br><br>
+<strong>Value column:</strong> The actual measured value of each spectral parameter.
+For example, <em>alpha_peak_freq_parcel_42 = 9.73</em> means the dominant alpha frequency
+in parcel 42 is 9.73 Hz. Normal posterior alpha is typically 9–11 Hz in adults; values
+outside this range may indicate pathology.<br><br>
+<strong>SHAP column:</strong> How much this feature's specific value pushed the model's
+score away from the average. A SHAP of +0.4 with a value of 7.2 Hz (for peak frequency)
+would mean "the model sees this 7.2 Hz alpha as abnormally slow, and that contributed
+significantly to the abnormality call."<br><br>
+<strong>Features missing from the model:</strong> If a feature appears in the full EEG
+feature set but not in this table, it was eliminated during the ReliefF feature
+selection step — the model determined it had little predictive value across training folds
+and excluded it to reduce overfitting.
+""",
+                    )
             else:
                 st.info("Feature vector not available (params_df columns don't overlap model features).")
 
@@ -1667,6 +1994,31 @@ with tab_model:
             _mc(m5, "CV F1",          f"{cv.get('f1_mean', 0):.3f}",
                 f"P {cv.get('precision_mean', 0):.2f} · R {cv.get('recall_mean', 0):.2f}")
 
+            # ── Explainer: Model performance metrics ──────────────────────────
+            clinical_explainer(
+                key="model_perf_metrics",
+                label="Model performance metrics",
+                content_html="""
+These five metrics summarise how well this model performed during <strong>cross-validation</strong>
+— testing on held-out EEG recordings it had never seen during training. The ± value is the
+standard deviation across folds (lower = more stable/consistent).<br><br>
+<strong>CV AUPRC</strong> (Area Under the Precision-Recall Curve) — the primary metric for this
+imbalanced classification task. It summarises the trade-off between:<br>
+&nbsp;&nbsp;• <em>Precision</em>: of the recordings the model called abnormal, what fraction actually were?<br>
+&nbsp;&nbsp;• <em>Recall (Sensitivity)</em>: of all truly abnormal recordings, what fraction did the model catch?<br>
+A perfect model = 1.0. A random classifier on a dataset with 20% abnormal cases would score ≈0.20.
+Values above 0.75 are generally considered useful for screening; above 0.85 is strong.<br><br>
+<strong>CV AUROC</strong> (Area Under the ROC Curve) — measures the model's ability to rank abnormal
+recordings above normal ones, at any threshold. 1.0 = perfect discrimination; 0.5 = random.
+AUROC is less sensitive to class imbalance than AUPRC.<br><br>
+<strong>CV F1</strong> — the harmonic mean of Precision and Recall at the chosen threshold.
+F1 = 1.0 is perfect; F1 = 0.0 is useless. The threshold was chosen during Optuna hyperparameter
+optimisation to maximise F1 on validation data.<br>
+&nbsp;&nbsp;• <em>P (Precision)</em> — positive predictive value: how many flagged abnormal EEGs are truly abnormal<br>
+&nbsp;&nbsp;• <em>R (Recall/Sensitivity)</em> — of all true abnormals, how many did the model detect
+""",
+            )
+
             st.markdown("")
             plot_dir = model_dir / "plots"
 
@@ -1681,7 +2033,121 @@ with tab_model:
                         unsafe_allow_html=True,
                     )
 
+            # ── Performance plots ─────────────────────────────────────────────
             st.markdown("#### 📈 Model Performance")
+
+            # ── Explainer: PR Curve ───────────────────────────────────────────
+            clinical_explainer(
+                key="model_pr_curve",
+                label="Precision-Recall Curve",
+                content_html="""
+<strong>What is this?</strong> The Precision-Recall (PR) curve shows the trade-off between
+two competing goals at every possible classification threshold:<br><br>
+&nbsp;&nbsp;• <strong>Precision</strong> (y-axis) = of all recordings the model flags as abnormal,
+what fraction are truly abnormal? (avoids false alarms)<br>
+&nbsp;&nbsp;• <strong>Recall / Sensitivity</strong> (x-axis) = of all truly abnormal recordings,
+what fraction does the model catch? (avoids missed cases)<br><br>
+<strong>A perfect model</strong> would have a curve that hugs the top-right corner (high precision
+AND high recall simultaneously). A random classifier would produce a flat horizontal line at the
+level of the abnormal prevalence in the dataset.<br><br>
+<strong>AUPRC</strong> (shown in the title) is the area under this curve — a single number
+summarising performance across all thresholds. The higher, the better.<br><br>
+<strong>Why PR instead of ROC?</strong> In clinical EEG datasets, abnormal recordings are typically
+the minority (imbalanced classes). The PR curve is more sensitive to performance on the minority
+(abnormal) class and better reflects real-world utility than the ROC curve in these settings.<br><br>
+<strong>OOF</strong> = Out-Of-Fold: predictions are assembled from all cross-validation folds,
+so every recording in the dataset is evaluated exactly once by a model that never saw it during training.
+""",
+            )
+
+            # ── Explainer: ROC Curve ──────────────────────────────────────────
+            clinical_explainer(
+                key="model_roc_curve",
+                label="ROC Curve",
+                content_html="""
+<strong>What is this?</strong> The Receiver Operating Characteristic (ROC) curve plots
+<strong>Sensitivity</strong> (True Positive Rate, y-axis) against <strong>1 − Specificity</strong>
+(False Positive Rate, x-axis) at every classification threshold.<br><br>
+&nbsp;&nbsp;• <strong>Sensitivity</strong> = proportion of abnormal EEGs correctly identified<br>
+&nbsp;&nbsp;• <strong>Specificity</strong> = proportion of normal EEGs correctly identified as normal<br>
+&nbsp;&nbsp;• <strong>False Positive Rate</strong> = proportion of normal EEGs incorrectly flagged<br><br>
+<strong>The diagonal dashed line</strong> represents a classifier that performs no better than
+random chance. The ideal model curve hugs the top-left corner.<br><br>
+<strong>AUROC</strong> (Area Under the ROC Curve) = probability that a randomly chosen abnormal
+recording is ranked above a randomly chosen normal recording by the model.
+AUROC of 0.5 = random; 1.0 = perfect discrimination.<br><br>
+<strong>Practical interpretation:</strong> For EEG screening, high sensitivity is usually prioritised
+(don't miss abnormals), accepting lower specificity. The chosen operating threshold (shown in the
+Predictions tab) reflects the balance optimised during training for F1 score.
+""",
+            )
+
+            # ── Explainer: Fold Stability ─────────────────────────────────────
+            clinical_explainer(
+                key="model_fold_stability",
+                label="Fold Stability chart",
+                content_html="""
+<strong>What this shows:</strong> How consistently the model performs across different subsets of
+the training data. The dataset is divided into 5 folds; each bar shows the model's performance
+metric when that fold was held out as the test set. The dashed red line shows the mean.<br><br>
+<strong>Why this matters:</strong> A model that performs well on some folds but poorly on others
+(large bar-to-bar variation) may have learned patterns specific to certain recording sessions,
+physicians, or patient subpopulations rather than general EEG abnormality patterns. This is called
+<em>high variance</em> or overfitting.<br><br>
+<strong>Ideal pattern:</strong> All bars approximately equal height, close to the mean — meaning
+the model generalises consistently regardless of which patients are in the test set.<br><br>
+<strong>High variance warning:</strong> A standard deviation above ~0.10 in AUPRC across folds
+suggests the model may not be reliable across all patient subgroups and should be interpreted
+with caution. The evaluation report (below) will flag this explicitly.
+""",
+            )
+
+            # ── Explainer: Probability Distribution ──────────────────────────
+            clinical_explainer(
+                key="model_prob_dist",
+                label="Probability Distribution",
+                content_html="""
+<strong>What this shows:</strong> The distribution of predicted probabilities for normal (blue)
+and abnormal (orange) recordings in the out-of-fold test set. The vertical dashed line marks
+the classification threshold.<br><br>
+<strong>Ideal distribution:</strong> The blue (normal) histogram should be heavily concentrated
+near 0 and the orange (abnormal) histogram near 1, with minimal overlap. Good separation
+between the two distributions means the model can confidently distinguish normal from abnormal.<br><br>
+<strong>Overlap in the middle:</strong> Recordings with predicted probabilities near the threshold
+are the genuinely difficult cases — these are the borderline recordings where human expert review
+is most important and where the model's contribution is more uncertain.<br><br>
+<strong>Threshold position:</strong> If the threshold appears to cut off a large proportion of the
+abnormal distribution (leaving much of the orange histogram below threshold), the model is biased
+toward specificity. If it catches too much of the blue distribution, it is biased toward sensitivity.
+The threshold was chosen to optimise F1 during training.
+""",
+            )
+
+            # ── Explainer: Confusion Matrix ───────────────────────────────────
+            clinical_explainer(
+                key="model_confusion",
+                label="Confusion Matrix",
+                content_html="""
+<strong>What this shows:</strong> The confusion matrix summarises the model's classification
+outcomes at the chosen threshold, in a 2×2 grid:<br><br>
+<table style="border-collapse:collapse;width:100%;font-size:0.85rem;">
+<tr><td></td><td><strong>Predicted Normal</strong></td><td><strong>Predicted Abnormal</strong></td></tr>
+<tr><td><strong>Truly Normal</strong></td>
+    <td style="background:#D4EDDA;padding:4px 8px;">True Negative (TN) ✅ correctly identified as normal</td>
+    <td style="background:#FFF3CD;padding:4px 8px;">False Positive (FP) ⚠️ flagged unnecessarily</td></tr>
+<tr><td><strong>Truly Abnormal</strong></td>
+    <td style="background:#F8D7DA;padding:4px 8px;">False Negative (FN) ❌ missed abnormality</td>
+    <td style="background:#D4EDDA;padding:4px 8px;">True Positive (TP) ✅ correctly caught</td></tr>
+</table><br>
+<strong>Clinically:</strong><br>
+&nbsp;&nbsp;• <strong>False Negatives</strong> are potentially dangerous — abnormal EEGs classified as normal.<br>
+&nbsp;&nbsp;• <strong>False Positives</strong> cause unnecessary workload but are safer than false negatives.<br>
+&nbsp;&nbsp;• <em>Sensitivity = TP / (TP + FN)</em> — how many true abnormals were caught<br>
+&nbsp;&nbsp;• <em>Specificity = TN / (TN + FP)</em> — how many true normals were spared a flag<br><br>
+This matrix uses OOF (out-of-fold) predictions at the threshold chosen during training.
+""",
+            )
+
             perf = [
                 ("pr_curve.png",         "Precision-Recall Curve"),
                 ("roc_curve.png",        "ROC Curve"),
@@ -1695,6 +2161,54 @@ with tab_model:
                     _plot_or_placeholder(plot_dir / f, t)
 
             st.markdown("#### 🧬 Feature Importance & Explainability")
+
+            # ── Explainer: SHAP Beeswarm ──────────────────────────────────────
+            clinical_explainer(
+                key="model_shap_beeswarm",
+                label="SHAP Beeswarm plot",
+                content_html="""
+<strong>What this shows:</strong> The beeswarm (or summary) plot gives a global view of how
+each feature influences the model across all training recordings simultaneously.<br><br>
+<strong>How to read it:</strong><br>
+&nbsp;&nbsp;• <strong>Y-axis</strong> — features ranked by importance (highest mean |SHAP| at the top)<br>
+&nbsp;&nbsp;• <strong>X-axis</strong> — the SHAP value for each individual recording. Positive = pushed toward
+abnormal; negative = pushed toward normal<br>
+&nbsp;&nbsp;• <strong>Each dot</strong> = one training recording. Dots are spread vertically (the "beeswarm")
+to avoid overlap.<br>
+&nbsp;&nbsp;• <strong>Dot colour</strong> — represents the actual feature value for that recording:
+<em>red = high value, blue = low value</em>. This reveals the direction of the relationship:
+if red dots (high feature value) cluster on the right (positive SHAP), it means a high value of
+that feature pushes toward abnormal.<br><br>
+<strong>Example interpretation:</strong> If <em>alpha_power_parcel_162</em> shows red dots (high power)
+on the left (negative SHAP) and blue dots (low power) on the right (positive SHAP), this means
+<em>lower alpha power in parcel 162 drives the model toward calling the EEG abnormal</em> —
+consistent with the known EEG finding of posterior alpha attenuation in encephalopathy.
+""",
+            )
+
+            # ── Explainer: SHAP Bar ───────────────────────────────────────────
+            clinical_explainer(
+                key="model_shap_bar",
+                label="SHAP Bar chart — global feature importance",
+                content_html="""
+<strong>What this shows:</strong> The mean absolute SHAP value for each feature, averaged across
+all training recordings. This is the simplest global summary of feature importance:<br>
+<em>"On average, how much does knowing this feature's value change the model's prediction?"</em><br><br>
+<strong>How to read it:</strong> Longer bar = more important feature overall. Unlike the beeswarm,
+this collapses direction — it does not tell you whether high or low values are abnormal,
+just how much the feature matters.<br><br>
+<strong>Feature naming convention:</strong><br>
+&nbsp;&nbsp;• <code>alpha_cf_parcel_N</code> — centre frequency of the alpha peak in brain region N<br>
+&nbsp;&nbsp;• <code>alpha_pw_parcel_N</code> — alpha peak power<br>
+&nbsp;&nbsp;• <code>alpha_bw_parcel_N</code> — alpha peak bandwidth (spectral width)<br>
+&nbsp;&nbsp;• <code>alpha_exp_parcel_N</code> — aperiodic exponent (slope of 1/f background)<br>
+&nbsp;&nbsp;• <code>alpha_offset_parcel_N</code> — aperiodic offset (overall power level)<br><br>
+<strong>Clinical correlate:</strong> Features from posterior parcels (occipital, parietal) typically
+dominate for alpha-rhythm disorders. Features from frontal parcels may dominate for diffuse slowing.
+A heavily frontal-dominant importance profile may suggest the model has learned frontal encephalopathy patterns.
+""",
+            )
+
             shap_plots = [
                 ("shap_beeswarm.png",    "SHAP Beeswarm (top 20)"),
                 ("shap_bar.png",         "SHAP Bar Chart"),
@@ -1705,7 +2219,53 @@ with tab_model:
                 with sc[i]:
                     _plot_or_placeholder(plot_dir / f, t)
 
+            # ── Explainer: XGBoost Native Importance ──────────────────────────
+            clinical_explainer(
+                key="model_xgb_gain",
+                label="XGBoost Native Gain Importance",
+                content_html="""
+<strong>What this shows:</strong> XGBoost's own built-in measure of feature importance,
+based on <em>gain</em> — the average improvement in prediction accuracy brought by a feature
+each time it is used as a split point in a decision tree.<br><br>
+<strong>Gain</strong> measures how much each feature reduces uncertainty (impurity) at the
+decision nodes where it is used. A high gain means the feature consistently helps the model
+make better predictions when it appears in a tree split.<br><br>
+<strong>Difference from SHAP:</strong> XGBoost native importance is a property of the model
+structure (which features appear in tree splits) rather than a measure of each feature's
+contribution to a specific prediction. SHAP is generally preferred for clinical explanation
+because it is fairer to correlated features and directly additive. Native importance is
+provided here for reference and cross-validation of SHAP findings.<br><br>
+<strong>Consistency check:</strong> If the top features by gain roughly match the top features
+by SHAP importance, the model is internally consistent. Large discrepancies may suggest
+correlated features where SHAP is redistributing credit between highly correlated brain regions.
+""",
+            )
+
             st.markdown("#### 🌊 SHAP Waterfall (Training Samples)")
+
+            # ── Explainer: Training Sample Waterfalls ─────────────────────────
+            clinical_explainer(
+                key="model_waterfall_train",
+                label="SHAP Waterfall — training samples",
+                content_html="""
+<strong>What these show:</strong> SHAP waterfall plots for three representative recordings
+from the training dataset. Each waterfall shows how the model arrived at its score
+for that specific recording, feature by feature.<br><br>
+<strong>Purpose:</strong> These training-sample waterfalls serve as <em>calibration examples</em> —
+they let you see how the model reasons for recordings whose true label is known.
+By comparing the model's explanation against what you see in the raw EEG, you can
+assess whether the model is picking up clinically meaningful signals or spurious artefacts.<br><br>
+<strong>⚠️ Important distinction:</strong> These waterfalls are from <em>training data</em> and
+are shown here for reference only. For the waterfall of <em>this specific patient's recording</em>,
+see the <strong>Explanations tab</strong> where SHAP is computed live.<br><br>
+<strong>How to read (same as the live waterfall):</strong><br>
+&nbsp;&nbsp;• E[f(x)] = average model output across all training recordings (baseline)<br>
+&nbsp;&nbsp;• Red bars = features that push this recording toward abnormal<br>
+&nbsp;&nbsp;• Green bars = features that push toward normal<br>
+&nbsp;&nbsp;• f(x) = final score for this specific recording (sum of baseline + all SHAP contributions)
+""",
+            )
+
             wc = st.columns(3)
             for i in range(3):
                 with wc[i]:
@@ -1716,22 +2276,108 @@ with tab_model:
             )
 
             st.markdown("#### 📉 Partial Dependence — Top 5 Features")
+
+            # ── Explainer: PDP ────────────────────────────────────────────────
+            clinical_explainer(
+                key="model_pdp",
+                label="Partial Dependence Plots (PDP)",
+                content_html="""
+<strong>What this shows:</strong> For each of the top 5 most important features (by SHAP),
+the Partial Dependence Plot (PDP) shows the average model prediction as that feature's value
+is varied across its entire range, while all other features are held at their average values.<br><br>
+<strong>In other words:</strong> "If this feature's value changes from low to high, how does
+the model's predicted probability change — on average?"<br><br>
+<strong>How to read it:</strong><br>
+&nbsp;&nbsp;• <strong>X-axis</strong> — the range of values this feature takes in the training data<br>
+&nbsp;&nbsp;• <strong>Y-axis</strong> — average predicted probability of abnormality<br>
+&nbsp;&nbsp;• An <em>upward slope</em> means higher feature values → higher probability of abnormality<br>
+&nbsp;&nbsp;• A <em>downward slope</em> means lower feature values → higher probability of abnormality<br>
+&nbsp;&nbsp;• A flat line means the model is relatively insensitive to this feature's value<br><br>
+<strong>Clinical application:</strong> If the PDP for <em>alpha_cf_parcel_210</em> shows a
+downward slope (lower alpha frequency → higher abnormality probability), this aligns with
+the known clinical finding that a slowing of the posterior dominant rhythm is a sensitive
+indicator of cortical dysfunction. PDPs let you validate that the model has learned
+physiologically plausible relationships.
+""",
+            )
+
             _plot_or_placeholder(plot_dir / "pdp_top5.png", "PDP top 5 features")
 
             shap_csv = model_dir / "shap_feature_importance.csv"
             if shap_csv.exists():
                 with st.expander("🔢 Top 20 Features by mean |SHAP|", expanded=False):
-                    st.dataframe(pd.read_csv(shap_csv).head(20), use_container_width=True, hide_index=True)
+                    shap_table = pd.read_csv(shap_csv).head(20)
+                    st.dataframe(shap_table, use_container_width=True, hide_index=True)
+
+                    clinical_explainer(
+                        key="model_shap_table",
+                        label="Top 20 Features by mean |SHAP| — table",
+                        content_html="""
+<strong>What this table shows:</strong> The 20 features with the highest average absolute SHAP
+values across the entire training dataset, in descending order of importance.<br><br>
+<strong>mean_abs_shap</strong> — the average of |SHAP value| for this feature across all training
+recordings. Units are in log-odds. A value of 0.3 means this feature shifts the model's
+log-odds by 0.3 on average — approximately equivalent to an 7–8% probability shift near the threshold.<br><br>
+<strong>How to use this table:</strong> Cross-reference the top features with the SHAP waterfall
+in the Explanations tab for this recording. Features appearing in both lists are the model's
+most reliable and consistent signals — their EEG channel and frequency-band equivalent in
+the raw trace should receive the closest scrutiny during clinical review.
+""",
+                    )
 
             cv_csv = model_dir / "cv_results.csv"
             if cv_csv.exists():
                 with st.expander("📋 Cross-Validation Results per Fold", expanded=False):
-                    st.dataframe(pd.read_csv(cv_csv), use_container_width=True, hide_index=True)
+                    cv_table = pd.read_csv(cv_csv)
+                    st.dataframe(cv_table, use_container_width=True, hide_index=True)
+
+                    clinical_explainer(
+                        key="model_cv_table",
+                        label="Cross-Validation Results per Fold — table",
+                        content_html="""
+<strong>What this table shows:</strong> The model's performance metrics for each individual
+cross-validation fold. This is the detailed breakdown behind the summary metrics shown in the
+metric cards at the top of this tab.<br><br>
+<strong>Column meanings:</strong><br>
+&nbsp;&nbsp;• <strong>fold</strong> — which fold (1 through 5)<br>
+&nbsp;&nbsp;• <strong>auprc / auroc / f1</strong> — performance metrics for that fold's test set<br>
+&nbsp;&nbsp;• <strong>precision / recall</strong> — positive predictive value and sensitivity<br>
+&nbsp;&nbsp;• <strong>threshold</strong> — the classification threshold selected by Optuna for this fold<br>
+&nbsp;&nbsp;• <strong>tp / fp / tn / fn</strong> — raw confusion matrix counts for this fold<br>
+&nbsp;&nbsp;• <strong>n_test / n_pos</strong> — number of recordings and positives in the test set<br>
+&nbsp;&nbsp;• <strong>n_features</strong> — number of features selected by ReliefF consensus for this fold<br>
+&nbsp;&nbsp;• <strong>spw</strong> — scale_pos_weight used to compensate for class imbalance in this fold<br><br>
+<strong>Stability check:</strong> Large variation in threshold across folds (e.g. 0.2 vs 0.7)
+may indicate that the optimal decision boundary is dataset-dependent and the model should be
+recalibrated before clinical deployment.
+""",
+                    )
 
             report = model_dir / "evaluation_report.txt"
             if report.exists():
                 with st.expander("📝 Full Evaluation Report", expanded=False):
                     st.code(report.read_text(), language=None)
+
+                    clinical_explainer(
+                        key="model_eval_report",
+                        label="Full Evaluation Report",
+                        content_html="""
+<strong>What this shows:</strong> A complete text summary of everything about this model:
+training configuration, cross-validation performance, per-fold breakdown, hyperparameters
+selected by Optuna, and the top features by both SHAP and XGBoost Gain importance.<br><br>
+<strong>Key sections to review:</strong><br>
+&nbsp;&nbsp;• <em>Stability</em> section — explicitly flags if AUPRC standard deviation exceeds 0.10
+(a threshold indicating high variance and potential unreliability)<br>
+&nbsp;&nbsp;• <em>Best hyperparameters</em> — the XGBoost settings selected across folds, including
+<em>scale_pos_weight</em> (the class imbalance correction factor), <em>max_depth</em> (tree complexity),
+and <em>learning_rate</em><br>
+&nbsp;&nbsp;• <em>Top 10 features by mean |SHAP|</em> — the global most important features<br><br>
+<strong>scale_pos_weight</strong> deserves special attention: it equals (number of normal recordings) ÷ (number of abnormal recordings).
+A value of 4.0 means the model trains on a 4:1 normal-to-abnormal ratio and upweights abnormal
+cases to compensate. A very high value (>10) may indicate extreme class imbalance and the
+model's performance on abnormal cases should be interpreted with particular care.
+""",
+                    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
