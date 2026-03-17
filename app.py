@@ -449,16 +449,6 @@ for _k, _v in [
 LOGO_PATH = "assets/fraser_health_logo.png"
 
 with st.sidebar:
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, use_container_width=True)
-    else:
-        st.markdown(
-            '<div style="text-align:center;background:#FFF8F2;border:1px dashed #E87722;'
-            'border-radius:6px;padding:0.6rem;margin-bottom:0.3rem;">'
-            '<p style="color:#E87722;font-size:0.75rem;margin:0;">'
-            'Place logo at <code>assets/fraser_health_logo.png</code></p></div>',
-            unsafe_allow_html=True,
-        )
 
     st.markdown(
         '<div style="text-align:center;padding:0 0 0.2rem 0;">'
@@ -2374,20 +2364,10 @@ model's performance on abnormal cases should be interpreted with particular care
 st.markdown("""
 <div class="footer-authors">
     <div class="author-line">
-        Iryna Gunko ¹ &nbsp;·&nbsp; Vasily A. Vakorin ¹ ² * &nbsp;·&nbsp;
-        Alexander Moiseev ¹ &nbsp;·&nbsp; Sam M. Doesburg ¹ &nbsp;·&nbsp; George Medvedev ²
+        Iryna Gunko  &nbsp;·&nbsp; Vasily A. Vakorin
     </div>
     <div>
-        ¹ Dept. Biomedical Physiology &amp; Kinesiology, Simon Fraser University, Burnaby, Canada &nbsp;&nbsp;
-        ² Royal Columbian Hospital, Fraser Health Authority, New Westminster, Canada
-    </div>
-    <div style="margin-top:0.3rem;">
-        * Correspondence:
-        <a href="mailto:iryna_gunko@sfu.ca">iryna_gunko@sfu.ca</a> &nbsp;·&nbsp;
-        <a href="mailto:vasily_vakorin@sfu.ca">vasily_vakorin@sfu.ca</a>
-    </div>
-    <div style="margin-top:0.5rem;color:#A0AEC0;font-size:0.72rem;">
-        © 2026 Fraser Health Authority × Simon Fraser University &nbsp;|&nbsp; Research Use Only
+        Dept. Biomedical Physiology &amp; Kinesiology, Simon Fraser University, Burnaby, Canada
     </div>
 </div>
 """, unsafe_allow_html=True)
