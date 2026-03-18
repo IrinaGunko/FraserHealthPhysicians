@@ -1219,7 +1219,7 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
     L_PAD   = 260
     R_PAD   = 90
     BAR_W   = 380
-    TOP_PAD = 40
+    TOP_PAD = 58
     BOT_PAD = 50
     n       = len(vals)
     SVG_H   = TOP_PAD + n * (BAR_H + GAP) + BOT_PAD
@@ -1277,7 +1277,7 @@ def _shap_waterfall_html(feature_names, shap_values, base_value, final_value,
         f'<svg viewBox="0 0 {SVG_W} {SVG_H}" xmlns="http://www.w3.org/2000/svg" '
         f'style="width:100%;max-width:{SVG_W}px;display:block;">'
         f'<rect width="{SVG_W}" height="{SVG_H}" fill="white" rx="10"/>'
-        f'<text x="{SVG_W//2}" y="22" text-anchor="middle" font-size="13" '
+        f'<text x="{SVG_W//2}" y="16" text-anchor="middle" font-size="13" '
         f'fill="#00456A" font-weight="700">SHAP Waterfall — feature contributions to score</text>'
         f'{centre_line}'
         f'{final_ann}'
