@@ -449,6 +449,8 @@ for _k, _v in [
     ("params_df", None),
     ("all_results", None),
     ("pipeline_error", None),
+    ("_csv_df", None),
+    ("_csv_type", None),
 ]:
     if _k not in st.session_state:
         st.session_state[_k] = _v
@@ -466,7 +468,11 @@ with st.sidebar:
     st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
     st.markdown("#### 📂 Data Source")
-    source = st.radio("src", ["Upload HDF5 file", "Use demo recording"], label_visibility="collapsed")
+    source = st.radio(
+        "src",
+        ["Upload HDF5 file", "Upload CSV vector", "Use demo recording"],
+        label_visibility="collapsed",
+    )
 
     if source == "Upload HDF5 file":
         uploaded = st.file_uploader(
@@ -483,6 +489,60 @@ with st.sidebar:
                 f'<div class="status-ready">✅ Loaded: {name_trunc}</div>',
                 unsafe_allow_html=True,
             )
+
+    elif source == "Upload CSV vector":
+        st.markdown(
+            "<p style='color:#5A6B7D;font-size:0.78rem;margin:0 0 0.3rem 0;'>"
+            "Upload a previously exported <strong>Params Vector</strong> or "
+            "<strong>Feature CSV</strong> — skips HDF5 processing entirely.</p>",
+            unsafe_allow_html=True,
+        )
+        uploaded_csv = st.file_uploader(
+            "CSV",
+            type=["csv"],
+            help="Either the Params Vector (1-row wide CSV) or Feature CSV (parcel-level rows) "
+                 "downloaded from a previous pipeline run.",
+            key="csv_uploader",
+        )
+        if uploaded_csv is not None:
+            try:
+                _csv_df = pd.read_csv(uploaded_csv)
+                # Detect type by column signature
+                _is_feature_csv = all(c in _csv_df.columns for c in ("subject_id", "parcel", "network"))
+                _is_params_vector = any(c.startswith(("net8_", "global_")) for c in _csv_df.columns)
+
+                if _is_feature_csv:
+                    _csv_type = "feature"
+                elif _is_params_vector:
+                    _csv_type = "params"
+                else:
+                    _csv_type = None
+
+                if _csv_type is None:
+                    st.markdown(
+                        '<div style="background:#F8D7DA;color:#721C24;padding:0.4rem 0.8rem;'
+                        'border-radius:6px;font-size:0.78rem;">⚠️ Unrecognised CSV format. '
+                        'Please upload a Params Vector or Feature CSV from this pipeline.</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.session_state.selected_file = uploaded_csv.name
+                    st.session_state.file_source = "csv"
+                    st.session_state._csv_df   = _csv_df
+                    st.session_state._csv_type = _csv_type
+                    _label = "Params Vector" if _csv_type == "params" else "Feature CSV"
+                    name_trunc = uploaded_csv.name[:38] + ("…" if len(uploaded_csv.name) > 38 else "")
+                    st.markdown(
+                        f'<div class="status-ready">✅ {_label} loaded: {name_trunc}</div>',
+                        unsafe_allow_html=True,
+                    )
+            except Exception as _e:
+                st.markdown(
+                    f'<div style="background:#F8D7DA;color:#721C24;padding:0.4rem 0.8rem;'
+                    f'border-radius:6px;font-size:0.78rem;">❌ Could not read CSV: {_e}</div>',
+                    unsafe_allow_html=True,
+                )
+
     else:
         st.markdown(
             "<p style='color:#5A6B7D;font-size:0.82rem;margin-bottom:0.5rem;'>"
@@ -538,35 +598,59 @@ with st.sidebar:
 
         tmp_path = None
         try:
-            if st.session_state.file_source == "upload":
-                raw = st.session_state.get("_uploaded_bytes")
-                if not raw:
-                    raise ValueError("Upload bytes missing — please re-upload.")
-                suffix = Path(st.session_state.selected_file).suffix or ".hdf5"
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as t:
-                    t.write(raw)
-                    tmp_path = t.name
-                h5_path = tmp_path
+            if st.session_state.file_source == "csv":
+                # ── CSV fast-path: skip HDF5 entirely ────────────────────────
+                _csv_df   = st.session_state.get("_csv_df")
+                _csv_type = st.session_state.get("_csv_type")
+                if _csv_df is None:
+                    raise ValueError("CSV data missing — please re-upload.")
+
+                if _csv_type == "feature":
+                    pbar.progress(0.5, text="Collapsing Feature CSV to model input vector…")
+                    params_df = collapse_to_vector(_csv_df)
+                    st.session_state.feature_df = _csv_df
+                else:
+                    # params vector — already collapsed, use directly
+                    pbar.progress(0.5, text="Using Params Vector directly…")
+                    params_df = _csv_df
+                    st.session_state.feature_df = None   # no parcel-level data
+
+                st.session_state.params_df = params_df
+                pbar.progress(0.96, text="Running 20 models…")
+                all_results = run_all_models(params_df)
+                st.session_state.all_results = all_results
+                st.session_state.pipeline_status = "done"
+
             else:
-                demo = DEMO_FILES[st.session_state._demo_index]
-                h5_path = demo["path"]
-                if not os.path.exists(h5_path):
-                    raise FileNotFoundError(f"Demo file not found: {h5_path}")
+                if st.session_state.file_source == "upload":
+                    raw = st.session_state.get("_uploaded_bytes")
+                    if not raw:
+                        raise ValueError("Upload bytes missing — please re-upload.")
+                    suffix = Path(st.session_state.selected_file).suffix or ".hdf5"
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as t:
+                        t.write(raw)
+                        tmp_path = t.name
+                    h5_path = tmp_path
+                else:
+                    demo = DEMO_FILES[st.session_state._demo_index]
+                    h5_path = demo["path"]
+                    if not os.path.exists(h5_path):
+                        raise FileNotFoundError(f"Demo file not found: {h5_path}")
 
-            pbar.progress(0, text="Extracting spectral features…")
-            df = run_pipeline(h5_path=h5_path, progress_callback=_progress)
-            if df.empty:
-                raise ValueError("No alpha peaks detected — check HDF5 data.")
-            st.session_state.feature_df = df
+                pbar.progress(0, text="Extracting spectral features…")
+                df = run_pipeline(h5_path=h5_path, progress_callback=_progress)
+                if df.empty:
+                    raise ValueError("No alpha peaks detected — check HDF5 data.")
+                st.session_state.feature_df = df
 
-            pbar.progress(0.92, text="Collapsing to model input vector…")
-            params_df = collapse_to_vector(df)
-            st.session_state.params_df = params_df
+                pbar.progress(0.92, text="Collapsing to model input vector…")
+                params_df = collapse_to_vector(df)
+                st.session_state.params_df = params_df
 
-            pbar.progress(0.96, text="Running 20 models…")
-            all_results = run_all_models(params_df)
-            st.session_state.all_results = all_results
-            st.session_state.pipeline_status = "done"
+                pbar.progress(0.96, text="Running 20 models…")
+                all_results = run_all_models(params_df)
+                st.session_state.all_results = all_results
+                st.session_state.pipeline_status = "done"
 
         except Exception as exc:
             st.session_state.pipeline_status = "error"
@@ -589,13 +673,19 @@ with st.sidebar:
         st.markdown('<div class="status-processing">⏳ Processing…</div>', unsafe_allow_html=True)
     elif status == "done":
         df = st.session_state.feature_df
-        n_p = df["label"].nunique() if df is not None and "label" in df.columns else 0
         n_m = sum(
             1 for v in (st.session_state.all_results or {}).values()
             if v.get("available") and v.get("result")
         )
+        if df is not None and "label" in df.columns:
+            n_p = df["label"].nunique()
+            _done_label = f"✅ {n_p} parcels · {n_m}/20 models"
+        elif st.session_state.get("_csv_type") == "params":
+            _done_label = f"✅ Params Vector · {n_m}/20 models"
+        else:
+            _done_label = f"✅ {n_m}/20 models"
         st.markdown(
-            f'<div class="status-ready">✅ {n_p} parcels · {n_m}/20 models</div>',
+            f'<div class="status-ready">{_done_label}</div>',
             unsafe_allow_html=True,
         )
     elif status == "error":
