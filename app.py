@@ -41,30 +41,6 @@ st.markdown("""
         --fh-orange-lt:#F5A623;
         --fh-soft:#DCECF5;
     }
-    /* ── Fix: Expander header text color ───────────────────────────── */
-
-    details[data-testid="stExpander"] summary {
-        color: #00456A !important;   /* Fraser Health navy */
-        font-weight: 700 !important;
-        font-size: 0.9rem;
-    }
-
-    /* arrow icon */
-    details[data-testid="stExpander"] summary svg {
-        color: #00456A !important;
-    }
-
-    /* hover */
-    details[data-testid="stExpander"] summary:hover {
-        color: #006699 !important;
-    }
-
-    /* background of the expander header */
-    details[data-testid="stExpander"] summary {
-        background: #F0F7FF;
-        border-radius: 6px;
-        padding: 6px 10px;
-    }
     .stApp {
         font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
         background: linear-gradient(160deg,#E8F4F8 0%,#D0E8F2 30%,#C2DFF0 60%,#D6EDF5 100%) !important;
@@ -220,7 +196,7 @@ st.markdown("""
         height:2px;
         background:linear-gradient(90deg,#E87722 0%,#F5A623 40%,transparent 100%);
         border:none;
-        margin:1rem 0;
+        margin:0.4rem 0;
         border-radius:2px;
     }
 
@@ -300,17 +276,16 @@ st.markdown("""
     /* ── Clinical explainer panels ── */
     .clinical-explainer {
         background: #F0F7FF;
-        border-left: 4px solid #0091B3;
-        border-radius: 0 8px 8px 0;
-        padding: 0.85rem 1.1rem;
-        margin: 0.3rem 0 0.5rem 0;
-        font-size: 0.875rem;
+        border-left: 3px solid #0091B3;
+        border-radius: 0 6px 6px 0;
+        padding: 0.5rem 0.8rem;
+        margin: 0.15rem 0 0.25rem 0;
+        font-size: 0.66rem;
         color: #1B2A3D !important;
-        line-height: 1.65;
+        line-height: 1.5;
     }
-    /* ── Fix: Expander header text color ───────────────────────────── */
-    /* ── Fix: expander header text ───────────────────────────────────────── */
 
+    /* ── Expander header ── */
     div[data-testid="stExpander"] summary,
     div[data-testid="stExpander"] summary *,
     details[data-testid="stExpander"] summary,
@@ -332,10 +307,10 @@ st.markdown("""
     div[data-testid="stExpander"] summary,
     details[data-testid="stExpander"] summary {
         background: #F0F7FF !important;
-        border-radius: 6px !important;
-        padding: 6px 10px !important;
+        border-radius: 5px !important;
+        padding: 3px 8px !important;
         font-weight: 700 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.675rem !important;
     }
 
     div[data-testid="stExpander"] summary:hover,
@@ -348,21 +323,12 @@ st.markdown("""
         color: #00456A !important;
         fill: #00456A !important;
     }
-    details[data-testid="stExpander"] summary {
-        color: #00456A !important;
-        font-weight: 700 !important;
-        font-size: 0.9rem;
-        background: #F0F7FF;
-        border-radius: 6px;
-        padding: 6px 10px;
-    }
 
-    details[data-testid="stExpander"] summary svg {
-        color: #00456A !important;
-    }
-
-    details[data-testid="stExpander"] summary:hover {
-        color: #006699 !important;
+    /* shrink the expander's internal top/bottom gap */
+    div[data-testid="stExpander"] > div[data-testid="stExpanderDetails"],
+    details[data-testid="stExpander"] > div {
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.1rem !important;
     }
     .clinical-explainer strong {
         color: #00456A;
@@ -411,6 +377,50 @@ st.markdown("""
 
     #MainMenu, footer { visibility:hidden !important; display:none !important; }
     header { visibility:hidden !important; height:0 !important; display:none !important; }
+
+    /* ── Multiselect — light background, dark text ────────────────────── */
+    /* Container / input box */
+    [data-testid="stMultiSelect"] > div > div {
+        background: #F0F7FF !important;
+        border: 1px solid #B8CCD8 !important;
+        border-radius: 8px !important;
+    }
+    /* Placeholder & typed text */
+    [data-testid="stMultiSelect"] input {
+        color: #1B2A3D !important;
+    }
+    [data-testid="stMultiSelect"] input::placeholder {
+        color: #7A93A8 !important;
+    }
+    /* Selected tag chips */
+    [data-testid="stMultiSelect"] span[data-baseweb="tag"] {
+        background: #DCECF5 !important;
+        border: 1px solid #8CB4C8 !important;
+        border-radius: 20px !important;
+    }
+    [data-testid="stMultiSelect"] span[data-baseweb="tag"] span {
+        color: #00456A !important;
+        font-weight: 600 !important;
+    }
+    /* X remove button on chips */
+    [data-testid="stMultiSelect"] span[data-baseweb="tag"] button svg {
+        fill: #00456A !important;
+    }
+    /* Dropdown list */
+    [data-baseweb="popover"] ul[role="listbox"] {
+        background: #FFFFFF !important;
+        border: 1px solid #B8CCD8 !important;
+        border-radius: 8px !important;
+    }
+    [data-baseweb="popover"] ul[role="listbox"] li {
+        color: #1B2A3D !important;
+        background: #FFFFFF !important;
+    }
+    [data-baseweb="popover"] ul[role="listbox"] li:hover,
+    [data-baseweb="popover"] ul[role="listbox"] li[aria-selected="true"] {
+        background: #DCECF5 !important;
+        color: #00456A !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -443,9 +453,6 @@ for _k, _v in [
     if _k not in st.session_state:
         st.session_state[_k] = _v
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SIDEBAR
-# ══════════════════════════════════════════════════════════════════════════════
 LOGO_PATH = "assets/fraser_health_logo.png"
 
 with st.sidebar:
@@ -650,10 +657,6 @@ with st.sidebar:
             use_container_width=True,
         )
 
-# ══════════════════════════════════════════════════════════════════════════════
-# CLINICAL EXPLAINER HELPER
-# ══════════════════════════════════════════════════════════════════════════════
-
 def clinical_explainer(key: str, label: str, content_html: str):
     """
     Render a collapsible 'How to read this' panel.
@@ -667,10 +670,6 @@ def clinical_explainer(key: str, label: str, content_html: str):
             unsafe_allow_html=True,
         )
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# HELPERS
-# ══════════════════════════════════════════════════════════════════════════════
 
 def _classify_call(prob: float, thr: float, band: float = 0.06):
     prob = float(prob)
@@ -724,10 +723,44 @@ def _gauge_html(
             f'stroke-linecap="round"/>'
         )
 
-    bg_arc     = _arc(0.0, 1.0, "#DDE5EC", stroke=20)
-    green_arc  = _arc(0.0, lo, "#2ECC71", stroke=20)
-    yellow_arc = _arc(lo, hi, "#F1C40F", stroke=20)
-    red_arc    = _arc(hi, 1.0, "#E74C3C", stroke=20)
+    # Gradient arc: stops anchored to lo/hi (threshold band), so green/yellow/red
+    # zones are proportional to the actual threshold, not fixed at 50%.
+    # Within each zone the colour transitions smoothly.
+    _GRAD_STEPS = 80
+    def _lerp_color(t):
+        # stops at 0, lo, lo, hi, hi, 1  — hard zone edges, smooth within
+        G = (39,  174,  96)   # green
+        Y = (249, 202,  36)   # yellow
+        R = (231,  76,  60)   # red
+        stops = [
+            (0.0, G),
+            (lo,  G),
+            (lo,  Y),
+            (hi,  Y),
+            (hi,  R),
+            (1.0, R),
+        ]
+        for i in range(len(stops) - 1):
+            t0, c0 = stops[i]
+            t1, c1 = stops[i + 1]
+            if t1 == t0:
+                continue
+            if t <= t1:
+                f = (t - t0) / (t1 - t0)
+                rv = int(c0[0] + f * (c1[0] - c0[0]))
+                gv = int(c0[1] + f * (c1[1] - c0[1]))
+                bv = int(c0[2] + f * (c1[2] - c0[2]))
+                return f"#{rv:02X}{gv:02X}{bv:02X}"
+        r2, g2, b2 = R
+        return f"#{r2:02X}{g2:02X}{b2:02X}"
+
+    bg_arc = _arc(0.0, 1.0, "#DDE5EC", stroke=20)
+    grad_arcs = ""
+    for si in range(_GRAD_STEPS):
+        p0 = si / _GRAD_STEPS
+        p1 = (si + 1) / _GRAD_STEPS
+        mid = (p0 + p1) / 2
+        grad_arcs += _arc(p0, p1, _lerp_color(mid), stroke=20)
 
     ticks = []
     for i in range(0, 11):
@@ -776,9 +809,7 @@ def _gauge_html(
     <rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="white" stroke="#D6DCE2"/>
     <text x="{CX}" y="22" text-anchor="middle" font-size="17" fill="#00456A" font-weight="700">{target}</text>
     {bg_arc}
-    {green_arc}
-    {yellow_arc}
-    {red_arc}
+    {grad_arcs}
     {ticks_svg}
     {thr_tick}
     {phys_needle}
@@ -817,17 +848,16 @@ def _threshold_bar_html(bar_marks: list) -> str:
     BOTTOM_PAD  = 120
     MAX_D       = 0.45
 
-    segs = [
-        (0.00, 0.35, "#2ECC71"),
-        (0.35, 0.50, "#A8D94B"),
-        (0.50, 0.60, "#F1C40F"),
-        (0.60, 0.75, "#E67E22"),
-        (0.75, 1.00, "#E74C3C"),
-    ]
-
-    rects = "".join(
-        f'<rect x="{int(x0 * W)}" y="{TOP_PAD}" width="{max(1, int((x1 - x0) * W))}" height="{H}" fill="{c}"/>'
-        for x0, x1, c in segs
+    grad_def = (
+        '<defs><linearGradient id="barGrad" x1="0%" y1="0%" x2="100%" y2="0%">'
+        '<stop offset="0%"   stop-color="#27AE60"/>'
+        '<stop offset="50%"  stop-color="#F9CA24"/>'
+        '<stop offset="100%" stop-color="#E74C3C"/>'
+        '</linearGradient></defs>'
+    )
+    rects = (
+        grad_def +
+        f'<rect x="0" y="{TOP_PAD}" width="{W}" height="{H}" fill="url(#barGrad)"/>'
     )
 
     centre = ""
@@ -906,14 +936,27 @@ def _score_bars_html(rows: list[dict]) -> str:
     def _sigmoid100(logit: float) -> float:
         return 100.0 / (1.0 + _math.exp(-logit))
 
+    def _interp_color(s100: float) -> str:
+        # 0→50→100 maps to green→yellow→red
+        t = max(0.0, min(1.0, s100 / 100.0))
+        stops = [
+            (0.00, (39,  174,  96)),   # #27AE60 green
+            (0.50, (249, 202,  36)),   # #F9CA24 yellow
+            (1.00, (231,  76,  60)),   # #E74C3C red
+        ]
+        for i in range(len(stops) - 1):
+            t0, c0 = stops[i]
+            t1, c1 = stops[i + 1]
+            if t <= t1:
+                f = (t - t0) / (t1 - t0)
+                r = int(c0[0] + f * (c1[0] - c0[0]))
+                g = int(c0[1] + f * (c1[1] - c0[1]))
+                b = int(c0[2] + f * (c1[2] - c0[2]))
+                return f"#{r:02X}{g:02X}{b:02X}"
+        return "#E74C3C"
+
     def _bar_color(s100: float) -> str:
-        d = s100 - 50
-        if d >= 30:  return "#A93226"
-        if d >= 10:  return "#E74C3C"
-        if d >= 0:   return "#F1948A"
-        if d >= -10: return "#82E0AA"
-        if d >= -30: return "#2ECC71"
-        return "#1A7A40"
+        return _interp_color(s100)
 
     def _num_color(s100: float) -> str:
         d = s100 - 50
@@ -1000,12 +1043,8 @@ def _score_bars_html(rows: list[dict]) -> str:
         bar_y   = mid_y - BAR_H / 2
 
         lines.append(
-            f'<rect x="{L_PAD:.1f}" y="{bar_y:.1f}" width="{BAR_W/2:.1f}" '
-            f'height="{BAR_H}" fill="#E8F5E9" rx="3"/>'
-        )
-        lines.append(
-            f'<rect x="{_px(50):.1f}" y="{bar_y:.1f}" width="{BAR_W/2:.1f}" '
-            f'height="{BAR_H}" fill="#FDECEA" rx="3"/>'
+            f'<rect x="{L_PAD:.1f}" y="{bar_y:.1f}" width="{BAR_W:.1f}" '
+            f'height="{BAR_H}" fill="url(#scoreTrackGrad)" rx="3" opacity="0.18"/>'
         )
 
         fill_w  = max(bar_px - L_PAD, 1.0)
@@ -1039,9 +1078,17 @@ def _score_bars_html(rows: list[dict]) -> str:
             f'{r["call"][0]}</text>'
         )
 
+    score_grad_defs = (
+        '<defs><linearGradient id="scoreTrackGrad" x1="0%" y1="0%" x2="100%" y2="0%">'
+        '<stop offset="0%"   stop-color="#27AE60"/>'
+        '<stop offset="50%"  stop-color="#F9CA24"/>'
+        '<stop offset="100%" stop-color="#E74C3C"/>'
+        '</linearGradient></defs>'
+    )
     svg = (
         f'<svg viewBox="0 0 {TOTAL_W} {SVG_H}" xmlns="http://www.w3.org/2000/svg" '
         f'style="width:100%;max-width:{TOTAL_W}px;display:block;">'
+        + score_grad_defs
         + "".join(lines) +
         '</svg>'
     )
@@ -1258,55 +1305,29 @@ def _empty(icon, title):
         unsafe_allow_html=True,
     )
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# MAIN TABS
-# ══════════════════════════════════════════════════════════════════════════════
 tab_pred, tab_explain, tab_model = st.tabs([
     "📊  Predictions",
     "🔍  Explanations",
     "🔬  Model Details",
 ])
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — PREDICTIONS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab_pred:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
         _empty("📊", "No predictions yet")
     else:
         ar = st.session_state.all_results
 
-        st.markdown('<h3 style="color:#00456A;">Model Selection</h3>', unsafe_allow_html=True)
-        sc1, sc2 = st.columns([3, 1])
+        st.markdown('<h3 style="color:#00456A;margin:0 0 0.3rem 0;">Model Selection</h3>', unsafe_allow_html=True)
 
-        with sc1:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Group</div>', unsafe_allow_html=True)
-            sel_phys = st.radio(
-                "Group",
-                ["general"] + ALL_PHYSICIANS,
-                horizontal=True,
-                label_visibility="collapsed",
-                format_func=lambda x: "🌐 General" if x == "general" else f"👤 {x}",
-                key="sel_phys",
-            )
-
-        with sc2:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Mode</div>', unsafe_allow_html=True)
-            sel_mode = st.radio(
-                "Mode",
-                ["strict", "relaxed"],
-                horizontal=True,
-                label_visibility="collapsed",
-                format_func=lambda x: "🔒 Strict" if x == "strict" else "🔓 Relaxed",
-                key="sel_mode",
-            )
-
-        if sel_phys != "general":
-            st.caption(
-                f"ℹ️ Per-physician models cover Abnormality only. "
-                f"Dr. {sel_phys} · {sel_mode} shown as orange dashed needle on Abnormality gauge."
-            )
+        st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Mode</div>', unsafe_allow_html=True)
+        sel_mode = st.radio(
+            "Mode",
+            ["strict", "relaxed"],
+            horizontal=True,
+            label_visibility="collapsed",
+            format_func=lambda x: "Strict" if x == "strict" else "Relaxed",
+            key="sel_mode",
+        )
 
         # ── Explainer: Model Groups & Modes ──────────────────────────────────
         clinical_explainer(
@@ -1319,9 +1340,10 @@ giving the broadest possible view of what abnormality looks like in this dataset
 specific physician — they capture each clinician's individual interpretation style and
 threshold for calling a finding abnormal. Neither is definitively "correct"; they are
 complementary perspectives.<br><br>
+Both the <strong>Abnormality Spectrum</strong> and <strong>Predictions by Category</strong>
+always show the general model (row 1) and all physician models (row 2) simultaneously.<br><br>
 <strong>Strict mode</strong> uses only unambiguous cases: label 1 (clearly normal) and
-label 4 (clearly abnormal). Labels 2 and 3 are excluded from training.
-This tends to produce higher-confidence predictions but on a narrower definition of abnormality.<br>
+label 4 (clearly abnormal). Labels 2 and 3 are excluded from training.<br>
 <strong>Relaxed mode</strong> treats labels 1 &amp; 2 as normal and labels 3 &amp; 4 as abnormal,
 including borderline cases in training. The model learns a broader, more inclusive concept of
 abnormality and is better at detecting subtle findings.
@@ -1332,74 +1354,78 @@ abnormality and is better at detecting subtle findings.
 
         gview = get_view(ar, "general", sel_mode)
 
-        phys_result = None
-        if sel_phys != "general":
-            pe = ar.get(f"physician__{sel_phys}__{sel_mode}__Abnormality", {})
-            if pe.get("available") and pe.get("result"):
-                phys_result = pe["result"]
-
         # ── Abnormality Spectrum bar ──────────────────────────────────────────
-        st.markdown('<h4 style="color:#00456A;">Abnormality Spectrum</h4>', unsafe_allow_html=True)
+        st.markdown('<h4 style="color:#00456A;margin:0 0 0.2rem 0;">Abnormality Spectrum</h4>', unsafe_allow_html=True)
 
-        bar_marks = []
+        # Row 1: general model — all targets
+        gen_bar_marks = []
         for tgt, ent in gview.items():
             if ent.get("available") and ent.get("result"):
-                bar_marks.append({
+                gen_bar_marks.append({
                     "label": tgt,
                     "prob":  ent["result"]["probability"],
                     "thr":   ent["result"]["threshold"],
                 })
-        if phys_result:
-            bar_marks.append({
-                "label": f"{sel_phys} physician",
-                "prob":  phys_result["probability"],
-                "thr":   phys_result["threshold"],
-            })
 
-        if bar_marks:
-            bar_svg  = _threshold_bar_html(bar_marks)
+        # Row 2: per-physician Abnormality only
+        phys_bar_marks = []
+        for phys in ALL_PHYSICIANS:
+            pe = ar.get(f"physician__{phys}__{sel_mode}__Abnormality", {})
+            if pe.get("available") and pe.get("result"):
+                phys_bar_marks.append({
+                    "label": f"👤 {phys}",
+                    "prob":  pe["result"]["probability"],
+                    "thr":   pe["result"]["threshold"],
+                })
+
+        if gen_bar_marks:
+            row2_bar_html = ""
+            if phys_bar_marks:
+                row2_bar_html = f"""
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:14px 0 4px 0;">
+  Abnormality — Per Physician
+</p>
+{_threshold_bar_html(phys_bar_marks)}"""
+
             bar_html = f"""<!DOCTYPE html><html>
 <body style="margin:0;padding:0;background:transparent;">
-<div style="background:white;border-radius:12px;padding:18px 22px 14px;border:1px solid #D6DCE2;">
-<p style="color:#5A6B7D;font-size:13px;line-height:1.45;margin:0 0 12px 0;">
-Each marker shows where a model places this recording relative to its own threshold.
-The dashed centre line marks the threshold. Left of centre = more normal. Right = more abnormal.
-</p>
-{bar_svg}
+<div style="background:white;border-radius:12px;padding:14px 22px 14px;border:1px solid #D6DCE2;">
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:0 0 4px 0;">General Model</p>
+{_threshold_bar_html(gen_bar_marks)}
+{row2_bar_html}
 </div></body></html>"""
-            components.html(bar_html, height=300, scrolling=False)
+            spectrum_height = 300 + (280 if phys_bar_marks else 0)
+            components.html(bar_html, height=spectrum_height, scrolling=False)
 
         # ── Explainer: Abnormality Spectrum bar ───────────────────────────────
         clinical_explainer(
             key="pred_spectrum",
             label="Abnormality Spectrum chart",
             content_html="""
-<strong>What this shows:</strong> A single horizontal gradient strip ranging from
-green (normal) on the left to red (abnormal) on the right. Each dot/marker represents
-one predictive model. Its position is determined by how far the model's predicted
-probability sits above or below that model's own decision threshold.<br>
-<strong>Colour zones:</strong><br>
-🟢 Dark green (far left) — strongly normal &nbsp;|&nbsp;
-🟡 Yellow-green — mildly normal &nbsp;|&nbsp;
-🟡 Yellow — near threshold / borderline &nbsp;|&nbsp;
-🟠 Orange — mildly abnormal &nbsp;|&nbsp;
-🔴 Red (far right) — strongly abnormal<br>
-<strong>Clinical takeaway:</strong> If all markers cluster to the left, the recording
-is consistently viewed as normal. If markers scatter on both sides, models disagree —
-this borderline recording warrants careful human review.
+<strong>What this shows:</strong> A horizontal gradient strip from green (normal) to red (abnormal).
+Each dot represents one model; its position reflects how far the predicted probability sits
+above or below that model's own threshold.<br>
+<strong>Row 1</strong> — General model across all 5 EEG categories.<br>
+<strong>Row 2</strong> — Each physician's Abnormality model, so you can compare how each
+clinician's model reads the same recording.<br>
+<strong>Colour zones:</strong>
+🟢 strongly normal &nbsp;|&nbsp; 🟡 borderline &nbsp;|&nbsp; 🟠 mildly abnormal &nbsp;|&nbsp; 🔴 strongly abnormal<br>
+<strong>Clinical takeaway:</strong> Markers clustering left = consensus normal; scattered across
+the threshold = borderline, warrants careful human review.
 """,
         )
 
         st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
         # ── Gauge cards ───────────────────────────────────────────────────────
-        st.markdown('<h2 style="color:#00456A;margin-bottom:0.6rem;">Predictions by Category</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 style="color:#00456A;margin:0 0 0.2rem 0;">Predictions by Category</h2>', unsafe_allow_html=True)
 
-        gauge_svgs = []
+        # Row 1: General model — all 5 targets
+        gen_gauge_svgs = []
         for tgt in ALL_TARGETS:
             ent = gview[tgt]
             if not ent.get("available") or not ent.get("result"):
-                gauge_svgs.append(
+                gen_gauge_svgs.append(
                     f'<div style="flex:1;min-width:190px;text-align:center;'
                     f'background:white;border-radius:12px;padding:1rem;border:1px solid #D6DCE2;">'
                     f'<p style="color:#00456A;font-weight:700;font-size:13px;">{tgt}</p>'
@@ -1407,26 +1433,53 @@ this borderline recording warrants careful human review.
                 )
             else:
                 r   = ent["result"]
-                pp  = phys_result["probability"] if (phys_result and tgt == "Abnormality") else None
-                pt  = phys_result["threshold"]   if (phys_result and tgt == "Abnormality") else None
-                pn  = sel_phys                   if (phys_result and tgt == "Abnormality") else None
-                svg = _gauge_html(tgt, r["probability"], r["threshold"],
-                                  phys_prob=pp, phys_thr=pt, phys_name=pn, band=0.06)
-                gauge_svgs.append(f'<div style="flex:1;min-width:190px;">{svg}</div>')
+                svg = _gauge_html(tgt, r["probability"], r["threshold"], band=0.06)
+                gen_gauge_svgs.append(f'<div style="flex:1;min-width:190px;">{svg}</div>')
+
+        # Row 2: Per-physician Abnormality gauges (one per physician)
+        phys_gauge_svgs = []
+        for phys in ALL_PHYSICIANS:
+            pe = ar.get(f"physician__{phys}__{sel_mode}__Abnormality", {})
+            if pe.get("available") and pe.get("result"):
+                r   = pe["result"]
+                svg = _gauge_html(f"👤 {phys}", r["probability"], r["threshold"], band=0.06)
+                phys_gauge_svgs.append(f'<div style="flex:1;min-width:190px;">{svg}</div>')
+            else:
+                phys_gauge_svgs.append(
+                    f'<div style="flex:1;min-width:190px;text-align:center;'
+                    f'background:white;border-radius:12px;padding:1rem;border:1px solid #D6DCE2;">'
+                    f'<p style="color:#00456A;font-weight:700;font-size:13px;">👤 {phys}</p>'
+                    f'<p style="color:#8B9DB3;font-size:12px;">Not available</p></div>'
+                )
+
+        # Build combined HTML with two rows
+        row2_html = ""
+        if phys_gauge_svgs:
+            row2_html = f"""
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:14px 0 6px 0;">
+  Abnormality — Per Physician
+</p>
+<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:nowrap;">
+{''.join(phys_gauge_svgs)}
+</div>"""
 
         gauges_html = f"""<!DOCTYPE html><html>
 <body style="margin:0;padding:0;background:transparent;font-family:'Source Sans Pro',sans-serif;">
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:0 0 6px 0;">
+  General Model
+</p>
 <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:nowrap;">
-{''.join(gauge_svgs)}
+{''.join(gen_gauge_svgs)}
 </div>
+{row2_html}
 <p style="color:#8B9DB3;font-size:11px;margin:10px 0 0 0;text-align:center;">
 🟢 Normal zone &nbsp;·&nbsp; 🟡 Borderline band around threshold &nbsp;·&nbsp;
-🔴 Abnormal zone &nbsp;·&nbsp;
-<span style="color:#2C3E50;">solid needle = general model</span> &nbsp;·&nbsp;
-<span style="color:#E87722;">dashed needle = physician model</span>
+🔴 Abnormal zone
 </p>
 </body></html>"""
-        components.html(gauges_html, height=275, scrolling=False)
+
+        gauge_height = 275 + (290 if phys_gauge_svgs else 0)
+        components.html(gauges_html, height=gauge_height, scrolling=False)
 
         # ── Explainer: Gauge dials ────────────────────────────────────────────
         clinical_explainer(
@@ -1440,9 +1493,10 @@ abnormal). The coloured arc is divided into three zones:<br><br>
 &nbsp;&nbsp;🟡 <strong>Yellow (centre band)</strong> — probability is close to the threshold → <em>Borderline</em> (±6% around threshold)<br>
 &nbsp;&nbsp;🔴 <strong>Red (right arc)</strong> — probability is comfortably above the threshold → <em>Abnormal</em><br><br>
 The <strong>black tick mark</strong> on the arc shows exactly where the threshold sits for this
-model. The <strong>solid dark needle</strong> is the general model's prediction.
-If a physician model is selected, an <strong>orange dashed needle</strong> appears on the
-Abnormality dial showing that physician's read.<br>
+model. The <strong>solid dark needle</strong> is the model's prediction.<br>
+The first row shows the General model across all five EEG categories. The second row shows
+per-physician Abnormality predictions — one gauge per physician — so you can compare how each
+clinician's model reads the same recording.<br>
 <strong>p =</strong> probability output by the model &nbsp;|&nbsp;
 <strong>thr =</strong> decision threshold chosen during training to optimise F1 score on held-out data.
 """,
@@ -1507,9 +1561,6 @@ physician-specific model rows appear in <strong style="color:#E87722;">orange</s
                 )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — EXPLANATIONS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab_explain:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
         _empty("🔍", "No explanations yet")
@@ -1517,9 +1568,9 @@ with tab_explain:
         ar         = st.session_state.all_results
         params_df  = st.session_state.params_df
 
-        st.markdown('<h3 style="color:#00456A;">Per-Recording Explanations</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color:#00456A;margin:0 0 0.2rem 0;">Per-Recording Explanations</h3>', unsafe_allow_html=True)
         st.markdown(
-            '<p style="color:#5A6B7D;font-size:0.9rem;margin-top:-0.5rem;">'
+            '<p style="color:#5A6B7D;font-size:0.85rem;margin:0 0 0.3rem 0;">'
             'SHAP values computed live on <em>this specific recording</em> — '
             'showing exactly which features pushed the model toward or away from abnormality.</p>',
             unsafe_allow_html=True,
@@ -1551,29 +1602,30 @@ the reviewing neurophysiologist.
 
         ec1, ec2, ec3 = st.columns([2, 1, 1])
         with ec1:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Group</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Group</div>', unsafe_allow_html=True)
             ex_phys = st.radio(
                 "Group",
                 ["general"] + ALL_PHYSICIANS,
                 horizontal=True,
                 label_visibility="collapsed",
-                format_func=lambda x: "🌐 General" if x == "general" else f"👤 {x}",
+                format_func=lambda x: "General" if x == "general" else f"👤 {x}",
                 key="ex_phys",
             )
         with ec2:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Mode</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Mode</div>', unsafe_allow_html=True)
             ex_mode = st.radio(
                 "Mode",
                 ["strict", "relaxed"],
                 horizontal=True,
                 label_visibility="collapsed",
-                format_func=lambda x: "🔒 Strict" if x == "strict" else "🔓 Relaxed",
+                format_func=lambda x: "Strict" if x == "strict" else "Relaxed",
                 key="ex_mode",
             )
         with ec3:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Target</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Target</div>', unsafe_allow_html=True)
             ex_tgt_choices = ALL_TARGETS if ex_phys == "general" else ["Abnormality"]
-            ex_tgt = st.selectbox("Target", ex_tgt_choices, label_visibility="collapsed", key="ex_tgt")
+            _ex_tgt_default = ex_tgt_choices.index("Abnormality") if "Abnormality" in ex_tgt_choices else 0
+            ex_tgt = st.selectbox("Target", ex_tgt_choices, index=_ex_tgt_default, label_visibility="collapsed", key="ex_tgt")
 
         ex_mid   = _model_id(ex_phys, ex_mode, ex_tgt)
         ex_entry = ar.get(ex_mid, {"available": False})
@@ -1648,7 +1700,7 @@ more parsimonious, generalisable model.
                          "moderate confidence" if abs(raw_sc) > 0.5 else "near the decision boundary"
             st.markdown(
                 f'<div style="background:#EBF5FB;border-left:4px solid #0091B3;'
-                f'border-radius:6px;padding:0.8rem 1rem;margin:1rem 0;">'
+                f'border-radius:6px;padding:0.5rem 0.8rem;margin:0.3rem 0;">'
                 f'<p style="margin:0;color:#1B2A3D;font-size:0.9rem;">'
                 f'<strong>Score interpretation:</strong> Raw score of <strong>{raw_sc:+.3f}</strong> '
                 f'is <strong>{direction}</strong> with <strong>{confidence}</strong>. '
@@ -1661,7 +1713,7 @@ more parsimonious, generalisable model.
             st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
             # ── SHAP section ──────────────────────────────────────────────────
-            st.markdown('<h4 style="color:#00456A;">SHAP Feature Contributions — This Recording</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 style="color:#00456A;margin:0 0 0.2rem 0;">SHAP Feature Contributions — This Recording</h4>', unsafe_allow_html=True)
 
             with st.spinner("Computing SHAP values for this recording…"):
                 shap_result = _get_shap_for_new_vector(ex_entry, ex_dir, params_df)
@@ -1800,61 +1852,10 @@ highlighted here is where the model found the most deviation from normal.
 """,
                 )
 
-                st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
-
-                # Model-level mean |SHAP| bar
-                shap_csv = ex_dir / "shap_feature_importance.csv"
-                if shap_csv.exists():
-                    st.markdown(
-                        '<h4 style="color:#00456A;">Model-Level Feature Importance (mean |SHAP| over training)</h4>',
-                        unsafe_allow_html=True,
-                    )
-                    shap_df = pd.read_csv(shap_csv)
-                    bar_svg = _shap_bar_html(
-                        shap_df["feature"].tolist(),
-                        shap_df["mean_abs_shap"].tolist(),
-                        n_display=20,
-                    )
-                    components.html(
-                        f"<!DOCTYPE html><html><body style='margin:0;padding:4px;background:transparent;'>"
-                        f"{bar_svg}</body></html>",
-                        height=60 + min(20, len(shap_df)) * 26,
-                        scrolling=False,
-                    )
-
-                    # ── Explainer: Mean |SHAP| bar chart ─────────────────────
-                    clinical_explainer(
-                        key="explain_mean_shap",
-                        label="Mean |SHAP| — model-level feature importance",
-                        content_html="""
-<strong>What this shows:</strong> Unlike the waterfall (which is specific to <em>this recording</em>),
-this bar chart shows which features are <em>generally</em> most important across all recordings
-in the training set. It is the average of the absolute SHAP values for each feature, computed
-over every training sample.<br><br>
-<strong>How to read it:</strong> Features with the longest bars were consistently the most
-influential across many different EEG recordings — they are the model's "go-to" signals
-for distinguishing normal from abnormal EEGs in this dataset.<br><br>
-<strong>Compare with the waterfall above:</strong> If the top features here also appear
-prominently in this recording's waterfall, this patient is following the typical pattern the
-model learned. If the top features here are absent from this recording's waterfall, the model
-is relying on unusual features to make its decision — which may warrant extra scrutiny.<br><br>
-<strong>Feature naming:</strong> Features are named as <code>[property]_[parcel]</code>
-where the property is an alpha-band spectral descriptor (centre frequency, power, bandwidth,
-aperiodic exponent, etc.) and the parcel is a brain region from the Schaefer 400 cortical
-atlas. Parcels in posterior occipital and parietal regions tend to dominate for alpha-related
-pathology; frontal parcels may dominate for slowing or encephalopathy.
-""",
-                    )
-
-                    st.caption(
-                        "This shows which features are *generally* most predictive across training data. "
-                        "Compare against the waterfall above to see if this recording follows the typical pattern."
-                    )
-
             st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
 
             # ── Input vector snapshot ─────────────────────────────────────────
-            st.markdown('<h4 style="color:#00456A;">Input Feature Vector — This Recording</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 style="color:#00456A;margin:0 0 0.2rem 0;">Input Feature Vector — This Recording</h4>', unsafe_allow_html=True)
             final_feats = ex_meta.get("final_features", [])
             avail_feats = [f for f in final_feats if f in params_df.columns]
 
@@ -1896,45 +1897,42 @@ and excluded it to reduce overfitting.
             else:
                 st.info("Feature vector not available (params_df columns don't overlap model features).")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — MODEL DETAILS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab_model:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
         _empty("🔬", "No model details yet")
     else:
         ar = st.session_state.all_results
 
-        st.markdown('<h3 style="color:#00456A;">Select Model to Inspect</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color:#00456A;margin:0 0 0.3rem 0;">Select Model to Inspect</h3>', unsafe_allow_html=True)
         mc1, mc2, mc3 = st.columns([2, 1, 1])
 
         with mc1:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Group</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Group</div>', unsafe_allow_html=True)
             md_phys = st.radio(
                 "Group",
                 ["general"] + ALL_PHYSICIANS,
                 horizontal=True,
                 label_visibility="collapsed",
-                format_func=lambda x: "🌐 General" if x == "general" else f"👤 {x}",
+                format_func=lambda x: "General" if x == "general" else f"👤 {x}",
                 key="md_phys",
             )
 
         with mc2:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Mode</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Mode</div>', unsafe_allow_html=True)
             md_mode = st.radio(
                 "Mode",
                 ["strict", "relaxed"],
                 horizontal=True,
                 label_visibility="collapsed",
-                format_func=lambda x: "🔒 Strict" if x == "strict" else "🔓 Relaxed",
+                format_func=lambda x: "Strict" if x == "strict" else "Relaxed",
                 key="md_mode",
             )
 
         with mc3:
-            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.2rem;">Target</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#00456A;font-weight:700;margin-bottom:0.1rem;">Target</div>', unsafe_allow_html=True)
             tgt_choices = ALL_TARGETS if md_phys == "general" else ["Abnormality"]
-            md_tgt = st.selectbox("Target", tgt_choices, label_visibility="collapsed", key="md_tgt")
+            _md_tgt_default = tgt_choices.index("Abnormality") if "Abnormality" in tgt_choices else 0
+            md_tgt = st.selectbox("Target", tgt_choices, index=_md_tgt_default, label_visibility="collapsed", key="md_tgt")
 
         mid = _model_id(md_phys, md_mode, md_tgt)
         entry = ar.get(mid, {"available": False})
@@ -1997,7 +1995,6 @@ optimisation to maximise F1 on validation data.<br>
 """,
             )
 
-            st.markdown("")
             plot_dir = model_dir / "plots"
 
             def _plot_or_placeholder(path, caption):
@@ -2012,133 +2009,41 @@ optimisation to maximise F1 on validation data.<br>
                     )
 
             # ── Performance plots ─────────────────────────────────────────────
-            st.markdown("#### 📈 Model Performance")
+            st.markdown('<h4 style="color:#00456A;margin:0.2rem 0 0.2rem 0;">📈 Model Performance</h4>', unsafe_allow_html=True)
 
-            # ── Explainer: PR Curve ───────────────────────────────────────────
+            # ── Explainer: Model Performance (consolidated) ───────────────────
             clinical_explainer(
-                key="model_pr_curve",
-                label="Precision-Recall Curve",
+                key="model_performance_all",
+                label="Model Performance",
                 content_html="""
-<strong>What is this?</strong> The Precision-Recall (PR) curve shows the trade-off between
-two competing goals at every possible classification threshold:<br><br>
-&nbsp;&nbsp;• <strong>Precision</strong> (y-axis) = of all recordings the model flags as abnormal,
-what fraction are truly abnormal? (avoids false alarms)<br>
-&nbsp;&nbsp;• <strong>Recall / Sensitivity</strong> (x-axis) = of all truly abnormal recordings,
-what fraction does the model catch? (avoids missed cases)<br><br>
-<strong>A perfect model</strong> would have a curve that hugs the top-right corner (high precision
-AND high recall simultaneously). A random classifier would produce a flat horizontal line at the
-level of the abnormal prevalence in the dataset.<br><br>
-<strong>AUPRC</strong> (shown in the title) is the area under this curve — a single number
-summarising performance across all thresholds. The higher, the better.<br><br>
-<strong>Why PR instead of ROC?</strong> In clinical EEG datasets, abnormal recordings are typically
-the minority (imbalanced classes). The PR curve is more sensitive to performance on the minority
-(abnormal) class and better reflects real-world utility than the ROC curve in these settings.<br><br>
-<strong>OOF</strong> = Out-Of-Fold: predictions are assembled from all cross-validation folds,
-so every recording in the dataset is evaluated exactly once by a model that never saw it during training.
-""",
-            )
-
-            # ── Explainer: ROC Curve ──────────────────────────────────────────
-            clinical_explainer(
-                key="model_roc_curve",
-                label="ROC Curve",
-                content_html="""
-<strong>What is this?</strong> The Receiver Operating Characteristic (ROC) curve plots
-<strong>Sensitivity</strong> (True Positive Rate, y-axis) against <strong>1 − Specificity</strong>
-(False Positive Rate, x-axis) at every classification threshold.<br><br>
-&nbsp;&nbsp;• <strong>Sensitivity</strong> = proportion of abnormal EEGs correctly identified<br>
-&nbsp;&nbsp;• <strong>Specificity</strong> = proportion of normal EEGs correctly identified as normal<br>
-&nbsp;&nbsp;• <strong>False Positive Rate</strong> = proportion of normal EEGs incorrectly flagged<br><br>
-<strong>The diagonal dashed line</strong> represents a classifier that performs no better than
-random chance. The ideal model curve hugs the top-left corner.<br><br>
-<strong>AUROC</strong> (Area Under the ROC Curve) = probability that a randomly chosen abnormal
-recording is ranked above a randomly chosen normal recording by the model.
-AUROC of 0.5 = random; 1.0 = perfect discrimination.<br><br>
-<strong>Practical interpretation:</strong> For EEG screening, high sensitivity is usually prioritised
-(don't miss abnormals), accepting lower specificity. The chosen operating threshold (shown in the
-Predictions tab) reflects the balance optimised during training for F1 score.
-""",
-            )
-
-            # ── Explainer: Fold Stability ─────────────────────────────────────
-            clinical_explainer(
-                key="model_fold_stability",
-                label="Fold Stability chart",
-                content_html="""
-<strong>What this shows:</strong> How consistently the model performs across different subsets of
-the training data. The dataset is divided into 5 folds; each bar shows the model's performance
-metric when that fold was held out as the test set. The dashed red line shows the mean.<br><br>
-<strong>Why this matters:</strong> A model that performs well on some folds but poorly on others
-(large bar-to-bar variation) may have learned patterns specific to certain recording sessions,
-physicians, or patient subpopulations rather than general EEG abnormality patterns. This is called
-<em>high variance</em> or overfitting.<br><br>
-<strong>Ideal pattern:</strong> All bars approximately equal height, close to the mean — meaning
-the model generalises consistently regardless of which patients are in the test set.<br><br>
-<strong>High variance warning:</strong> A standard deviation above ~0.10 in AUPRC across folds
-suggests the model may not be reliable across all patient subgroups and should be interpreted
-with caution. The evaluation report (below) will flag this explicitly.
-""",
-            )
-
-            # ── Explainer: Probability Distribution ──────────────────────────
-            clinical_explainer(
-                key="model_prob_dist",
-                label="Probability Distribution",
-                content_html="""
-<strong>What this shows:</strong> The distribution of predicted probabilities for normal (blue)
-and abnormal (orange) recordings in the out-of-fold test set. The vertical dashed line marks
-the classification threshold.<br><br>
-<strong>Ideal distribution:</strong> The blue (normal) histogram should be heavily concentrated
-near 0 and the orange (abnormal) histogram near 1, with minimal overlap. Good separation
-between the two distributions means the model can confidently distinguish normal from abnormal.<br><br>
-<strong>Overlap in the middle:</strong> Recordings with predicted probabilities near the threshold
-are the genuinely difficult cases — these are the borderline recordings where human expert review
-is most important and where the model's contribution is more uncertain.<br><br>
-<strong>Threshold position:</strong> If the threshold appears to cut off a large proportion of the
-abnormal distribution (leaving much of the orange histogram below threshold), the model is biased
-toward specificity. If it catches too much of the blue distribution, it is biased toward sensitivity.
-The threshold was chosen to optimise F1 during training.
-""",
-            )
-
-            # ── Explainer: Confusion Matrix ───────────────────────────────────
-            clinical_explainer(
-                key="model_confusion",
-                label="Confusion Matrix",
-                content_html="""
-<strong>What this shows:</strong> The confusion matrix summarises the model's classification
-outcomes at the chosen threshold, in a 2×2 grid:<br><br>
-<table style="border-collapse:collapse;width:100%;font-size:0.85rem;">
-<tr><td></td><td><strong>Predicted Normal</strong></td><td><strong>Predicted Abnormal</strong></td></tr>
-<tr><td><strong>Truly Normal</strong></td>
-    <td style="background:#D4EDDA;padding:4px 8px;">True Negative (TN) ✅ correctly identified as normal</td>
-    <td style="background:#FFF3CD;padding:4px 8px;">False Positive (FP) ⚠️ flagged unnecessarily</td></tr>
-<tr><td><strong>Truly Abnormal</strong></td>
-    <td style="background:#F8D7DA;padding:4px 8px;">False Negative (FN) ❌ missed abnormality</td>
-    <td style="background:#D4EDDA;padding:4px 8px;">True Positive (TP) ✅ correctly caught</td></tr>
-</table><br>
-<strong>Clinically:</strong><br>
-&nbsp;&nbsp;• <strong>False Negatives</strong> are potentially dangerous — abnormal EEGs classified as normal.<br>
-&nbsp;&nbsp;• <strong>False Positives</strong> cause unnecessary workload but are safer than false negatives.<br>
-&nbsp;&nbsp;• <em>Sensitivity = TP / (TP + FN)</em> — how many true abnormals were caught<br>
-&nbsp;&nbsp;• <em>Specificity = TN / (TN + FP)</em> — how many true normals were spared a flag<br><br>
-This matrix uses OOF (out-of-fold) predictions at the threshold chosen during training.
+<strong>PR Curve</strong> — Precision (y) vs Recall (x) at every threshold. Curve hugging
+the top-right = strong model. <strong>AUPRC</strong> summarises it in one number; higher is better.
+Preferred over ROC here because abnormal EEGs are the minority class.<br><br>
+<strong>ROC Curve</strong> — Sensitivity (y) vs False Positive Rate (x). Diagonal = random chance;
+top-left corner = perfect. <strong>AUROC</strong> = probability the model ranks a true abnormal
+above a true normal. 0.5 = random, 1.0 = perfect.<br><br>
+<strong>Probability Distribution</strong> — Histograms of predicted probabilities for normal (blue)
+and abnormal (orange) recordings. Good separation (blue near 0, orange near 1) = confident model.
+Heavy overlap near the threshold = many borderline cases requiring human review.<br><br>
+<strong>Confusion Matrix</strong> — At the chosen threshold:<br>
+&nbsp;&nbsp;• <strong>TP</strong> ✅ caught abnormal &nbsp;·&nbsp; <strong>TN</strong> ✅ correctly normal<br>
+&nbsp;&nbsp;• <strong>FN</strong> ❌ missed abnormal (most clinically dangerous) &nbsp;·&nbsp; <strong>FP</strong> ⚠️ unnecessary flag<br>
+All plots use OOF (out-of-fold) predictions — every recording evaluated by a model that never saw it during training.
 """,
             )
 
             perf = [
                 ("pr_curve.png",         "Precision-Recall Curve"),
-                ("roc_curve.png",        "ROC Curve"),
-                ("fold_stability.png",   "Fold Stability"),
                 ("prob_distribution.png","Probability Distribution"),
+                ("roc_curve.png",        "ROC Curve"),
                 ("confusion_matrix.png", "Confusion Matrix"),
             ]
-            pc = st.columns(3)
+            pc = st.columns(4)
             for i, (f, t) in enumerate(perf):
-                with pc[i % 3]:
+                with pc[i]:
                     _plot_or_placeholder(plot_dir / f, t)
 
-            st.markdown("#### 🧬 Feature Importance & Explainability")
+            st.markdown('<h4 style="color:#00456A;margin:0.2rem 0 0.2rem 0;">🧬 Feature Importance & Explainability</h4>', unsafe_allow_html=True)
 
             # ── Explainer: SHAP Beeswarm ──────────────────────────────────────
             clinical_explainer(
@@ -2219,118 +2124,6 @@ correlated features where SHAP is redistributing credit between highly correlate
 """,
             )
 
-            st.markdown("#### 🌊 SHAP Waterfall (Training Samples)")
-
-            # ── Explainer: Training Sample Waterfalls ─────────────────────────
-            clinical_explainer(
-                key="model_waterfall_train",
-                label="SHAP Waterfall — training samples",
-                content_html="""
-<strong>What these show:</strong> SHAP waterfall plots for three representative recordings
-from the training dataset. Each waterfall shows how the model arrived at its score
-for that specific recording, feature by feature.<br><br>
-<strong>Purpose:</strong> These training-sample waterfalls serve as <em>calibration examples</em> —
-they let you see how the model reasons for recordings whose true label is known.
-By comparing the model's explanation against what you see in the raw EEG, you can
-assess whether the model is picking up clinically meaningful signals or spurious artefacts.<br><br>
-<strong>⚠️ Important distinction:</strong> These waterfalls are from <em>training data</em> and
-are shown here for reference only. For the waterfall of <em>this specific patient's recording</em>,
-see the <strong>Explanations tab</strong> where SHAP is computed live.<br><br>
-<strong>How to read (same as the live waterfall):</strong><br>
-&nbsp;&nbsp;• E[f(x)] = average model output across all training recordings (baseline)<br>
-&nbsp;&nbsp;• Red bars = features that push this recording toward abnormal<br>
-&nbsp;&nbsp;• Green bars = features that push toward normal<br>
-&nbsp;&nbsp;• f(x) = final score for this specific recording (sum of baseline + all SHAP contributions)
-""",
-            )
-
-            wc = st.columns(3)
-            for i in range(3):
-                with wc[i]:
-                    _plot_or_placeholder(plot_dir / f"shap_waterfall_s{i}.png", f"Training sample {i}")
-            st.caption(
-                "⚠️ These waterfalls are from training samples. "
-                "For the waterfall of **this specific recording**, see the Explanations tab."
-            )
-
-            st.markdown("#### 📉 Partial Dependence — Top 5 Features")
-
-            # ── Explainer: PDP ────────────────────────────────────────────────
-            clinical_explainer(
-                key="model_pdp",
-                label="Partial Dependence Plots (PDP)",
-                content_html="""
-<strong>What this shows:</strong> For each of the top 5 most important features (by SHAP),
-the Partial Dependence Plot (PDP) shows the average model prediction as that feature's value
-is varied across its entire range, while all other features are held at their average values.<br><br>
-<strong>In other words:</strong> "If this feature's value changes from low to high, how does
-the model's predicted probability change — on average?"<br><br>
-<strong>How to read it:</strong><br>
-&nbsp;&nbsp;• <strong>X-axis</strong> — the range of values this feature takes in the training data<br>
-&nbsp;&nbsp;• <strong>Y-axis</strong> — average predicted probability of abnormality<br>
-&nbsp;&nbsp;• An <em>upward slope</em> means higher feature values → higher probability of abnormality<br>
-&nbsp;&nbsp;• A <em>downward slope</em> means lower feature values → higher probability of abnormality<br>
-&nbsp;&nbsp;• A flat line means the model is relatively insensitive to this feature's value<br><br>
-<strong>Clinical application:</strong> If the PDP for <em>alpha_cf_parcel_210</em> shows a
-downward slope (lower alpha frequency → higher abnormality probability), this aligns with
-the known clinical finding that a slowing of the posterior dominant rhythm is a sensitive
-indicator of cortical dysfunction. PDPs let you validate that the model has learned
-physiologically plausible relationships.
-""",
-            )
-
-            _plot_or_placeholder(plot_dir / "pdp_top5.png", "PDP top 5 features")
-
-            shap_csv = model_dir / "shap_feature_importance.csv"
-            if shap_csv.exists():
-                with st.expander("🔢 Top 20 Features by mean |SHAP|", expanded=False):
-                    shap_table = pd.read_csv(shap_csv).head(20)
-                    st.dataframe(shap_table, use_container_width=True, hide_index=True)
-
-                    clinical_explainer(
-                        key="model_shap_table",
-                        label="Top 20 Features by mean |SHAP| — table",
-                        content_html="""
-<strong>What this table shows:</strong> The 20 features with the highest average absolute SHAP
-values across the entire training dataset, in descending order of importance.<br><br>
-<strong>mean_abs_shap</strong> — the average of |SHAP value| for this feature across all training
-recordings. Units are in log-odds. A value of 0.3 means this feature shifts the model's
-log-odds by 0.3 on average — approximately equivalent to an 7–8% probability shift near the threshold.<br><br>
-<strong>How to use this table:</strong> Cross-reference the top features with the SHAP waterfall
-in the Explanations tab for this recording. Features appearing in both lists are the model's
-most reliable and consistent signals — their EEG channel and frequency-band equivalent in
-the raw trace should receive the closest scrutiny during clinical review.
-""",
-                    )
-
-            cv_csv = model_dir / "cv_results.csv"
-            if cv_csv.exists():
-                with st.expander("📋 Cross-Validation Results per Fold", expanded=False):
-                    cv_table = pd.read_csv(cv_csv)
-                    st.dataframe(cv_table, use_container_width=True, hide_index=True)
-
-                    clinical_explainer(
-                        key="model_cv_table",
-                        label="Cross-Validation Results per Fold — table",
-                        content_html="""
-<strong>What this table shows:</strong> The model's performance metrics for each individual
-cross-validation fold. This is the detailed breakdown behind the summary metrics shown in the
-metric cards at the top of this tab.<br><br>
-<strong>Column meanings:</strong><br>
-&nbsp;&nbsp;• <strong>fold</strong> — which fold (1 through 5)<br>
-&nbsp;&nbsp;• <strong>auprc / auroc / f1</strong> — performance metrics for that fold's test set<br>
-&nbsp;&nbsp;• <strong>precision / recall</strong> — positive predictive value and sensitivity<br>
-&nbsp;&nbsp;• <strong>threshold</strong> — the classification threshold selected by Optuna for this fold<br>
-&nbsp;&nbsp;• <strong>tp / fp / tn / fn</strong> — raw confusion matrix counts for this fold<br>
-&nbsp;&nbsp;• <strong>n_test / n_pos</strong> — number of recordings and positives in the test set<br>
-&nbsp;&nbsp;• <strong>n_features</strong> — number of features selected by ReliefF consensus for this fold<br>
-&nbsp;&nbsp;• <strong>spw</strong> — scale_pos_weight used to compensate for class imbalance in this fold<br><br>
-<strong>Stability check:</strong> Large variation in threshold across folds (e.g. 0.2 vs 0.7)
-may indicate that the optimal decision boundary is dataset-dependent and the model should be
-recalibrated before clinical deployment.
-""",
-                    )
-
             report = model_dir / "evaluation_report.txt"
             if report.exists():
                 with st.expander("📝 Full Evaluation Report", expanded=False):
@@ -2357,10 +2150,6 @@ model's performance on abnormal cases should be interpreted with particular care
 """,
                     )
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# FOOTER
-# ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="footer-authors">
     <div class="author-line">

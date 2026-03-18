@@ -5,8 +5,6 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# ── Constants (must match summarize_eeg.py exactly) ───────────────────────────
-
 MIN_ROWS = 40
 
 MAJOR = {
@@ -37,9 +35,6 @@ FEATURE_COLS = [
 ]
 
 STATS = ['median', 'IQR', 'p5', 'p95']
-
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _safe_name(net_name: str) -> str:
     return net_name.replace('/', '_').replace(' ', '_')
@@ -91,11 +86,8 @@ def _build_global_columns(df_alpha: pd.DataFrame) -> dict:
     return row
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
-
 def collapse_to_vector(feature_df: pd.DataFrame) -> pd.DataFrame:
 
-    # ── Validate required columns ─────────────────────────────────────────────
     required = {'alpha_peak_index', 'alpha_peak_cf', 'network'}
     missing  = required - set(feature_df.columns)
     if missing:
@@ -108,7 +100,7 @@ def collapse_to_vector(feature_df: pd.DataFrame) -> pd.DataFrame:
             "Make sure the S-A axis CSV was merged correctly during extraction."
         )
 
-    # ── Step 1: filter ────────────────────────────────────────────────────────
+
     df_alpha = feature_df[
         (feature_df['alpha_peak_index'] == 1) &
         (feature_df['alpha_peak_cf']    >  0)
@@ -117,7 +109,6 @@ def collapse_to_vector(feature_df: pd.DataFrame) -> pd.DataFrame:
     n_total = len(df_alpha)
     logger.info("After alpha filter: %d rows (need >= %d)", n_total, MIN_ROWS)
 
-    # ── Step 2: minimum row check ─────────────────────────────────────────────
     if n_total < MIN_ROWS:
         raise ValueError(
             f"Only {n_total} parcels with a valid primary alpha peak detected "
@@ -125,7 +116,6 @@ def collapse_to_vector(feature_df: pd.DataFrame) -> pd.DataFrame:
             "The recording may be too noisy or too short for reliable feature extraction."
         )
 
-    # ── Step 3: map to 8 major networks ───────────────────────────────────────
     df_alpha['major_network'] = df_alpha['network'].map(MAJOR)
 
     unmapped = df_alpha['major_network'].isna().sum()
@@ -133,7 +123,6 @@ def collapse_to_vector(feature_df: pd.DataFrame) -> pd.DataFrame:
         unknown = df_alpha.loc[df_alpha['major_network'].isna(), 'network'].unique().tolist()
         logger.warning("%d parcels have unrecognised network labels: %s", unmapped, unknown)
 
-    # ── Build output row ──────────────────────────────────────────────────────
     out = {'n_total': n_total}
 
     for net in MAJOR_NETWORKS:

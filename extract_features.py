@@ -18,8 +18,6 @@ _SPECPARAM_V2 = int(_specparam.__version__.split('.')[0]) >= 2
 logger.debug("specparam version: %s (v2=%s)", _specparam.__version__, _SPECPARAM_V2)
 
 
-# ── Columns we want in output, in exact order ─────────────────────────────────
-# Any column not listed here lands at the end (shouldn't happen with a correct merge).
 _DESIRED_ORDER = [
     "subject_id",
     "network", "parcel", "label",
@@ -31,7 +29,6 @@ _DESIRED_ORDER = [
     "finalrank.hemisphere", "averagerank.wholebrain",
 ]
 
-# Gradient columns we expect from the SA CSV (used to drop duplicates before merge)
 _GRADIENT_COLS = [
     "T1T2ratio", "G1.fMRI", "Evolution.Expansion", "AllometricScaling.PNC20mm",
     "PET.AG", "CBF", "PC1.AHBA", "PC1.Neurosynth", "BigBrain.Histology",
@@ -183,13 +180,11 @@ def _resolve_sa_path(sa_csv_path: str | None) -> str:
     if sa_csv_path:
         return sa_csv_path
 
-    # extract_features.py is at repo root, so S-A_Axis/ is a sibling folder
     _here = os.path.dirname(os.path.abspath(__file__))
     candidate = os.path.join(_here, "S-A_Axis", "schaefer400_sa_axis_merged.csv")
     if os.path.exists(candidate):
         return candidate
 
-    # Last resort: fall back to whatever config defines
     if os.path.exists(S_A_AXIS_RANKS):
         logger.warning("Using fallback SA path from config: %s", S_A_AXIS_RANKS)
         return S_A_AXIS_RANKS
@@ -217,7 +212,6 @@ def run_pipeline(
     sa_path = _resolve_sa_path(sa_csv_path)
     logger.info("SA axis CSV: %s", sa_path)
 
-    # -- Load -----------------------------------------------------------------
     if debug:
         debug_hdf5(h5_path)
 
@@ -230,7 +224,6 @@ def run_pipeline(
         logger.info("  n_parcels     : %d", n_parcels)
         logger.info("  config.sfreq  : %s", config.sfreq)
 
-    # -- PSD ------------------------------------------------------------------
     logger.info("Computing PSD for %d parcels ...", n_parcels)
     psd, freqs = compute_psd(signals, config)
 
@@ -238,7 +231,6 @@ def run_pipeline(
         clean_names = [clean_label(l) for l in label_names]
         debug_psd(psd, freqs, clean_names, n_samples=5, save_path=debug_plot_path)
 
-    # -- Specparam per parcel -------------------------------------------------
     logger.info("Fitting SpectralModel (alpha %d-%d Hz) ...",
                 config.alpha_start, config.alpha_end)
 
@@ -348,14 +340,11 @@ def run_pipeline(
 
     df = pd.DataFrame(all_rows)
 
-    # -- Gradient merge -------------------------------------------------------
     sa_df = pd.read_csv(sa_path)
     logger.info("SA CSV columns: %s", list(sa_df.columns))
 
-    # Drop redundant index/name cols; keep label + all gradient cols
     sa_cols = [c for c in sa_df.columns if c not in ("row_index", "name")]
 
-    # Safety: drop any gradient cols already on df to avoid _x/_y suffixes
     already_present = [c for c in _GRADIENT_COLS if c in df.columns]
     if already_present:
         logger.warning("Dropping pre-existing gradient cols before merge: %s", already_present)
@@ -369,14 +358,12 @@ def run_pipeline(
     if n_matched == 0:
         logger.warning("No rows matched in gradient merge — check label format in SA CSV vs HDF5")
 
-    # -- Column ordering ------------------------------------------------------
     ordered = [c for c in _DESIRED_ORDER if c in df.columns]
     rest    = [c for c in df.columns if c not in _DESIRED_ORDER]
     df      = df[ordered + rest]
 
     logger.info("Output columns (%d): %s", len(df.columns), list(df.columns))
 
-    # -- Optional save --------------------------------------------------------
     if save_csv_path:
         os.makedirs(os.path.dirname(save_csv_path) or ".", exist_ok=True)
         df.to_csv(save_csv_path, index=False)

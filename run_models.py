@@ -12,15 +12,12 @@ import xgboost as xgb
 
 logger = logging.getLogger(__name__)
 
-# ── Constants matching train_model.py ────────────────────────────────────────
 ALL_PHYSICIANS = ["Sophia", "Eleni", "Athina", "Maria", "Zoe"]
 ALL_TARGETS    = ["Focal Epi", "Gen Epi", "Focal Non-epi", "Gen Non-epi", "Abnormality"]
 LABEL_MODES    = ["strict", "relaxed"]
 
 MODEL_OUTPUTS_DIR = Path(__file__).parent / "model_outputs"
 
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _model_id(physician: str, label_mode: str, target: str) -> str:
     t = target.replace(" ", "_").replace("-", "_")
@@ -40,13 +37,7 @@ def _expected_model_ids() -> list[str]:
 
 
 def _prob_to_score(prob: float) -> int:
-    """
-    Map predicted probability → clinical score 1–4.
-      1: prob < 0.25   (unlikely abnormal)
-      2: prob < 0.50   (possibly normal)
-      3: prob < 0.75   (possibly abnormal)
-      4: prob >= 0.75  (likely abnormal)
-    """
+
     if prob < 0.25:
         return 1
     elif prob < 0.50:
@@ -57,13 +48,8 @@ def _prob_to_score(prob: float) -> int:
         return 4
 
 
-# ── Core API ──────────────────────────────────────────────────────────────────
-
 def discover_models(model_root: Optional[Path] = None) -> Dict[str, Path]:
-    """
-    Scan model_outputs/ and return {model_id: folder_path} for every
-    folder that contains both model.json and metadata.json.
-    """
+
     root = model_root or MODEL_OUTPUTS_DIR
     found = {}
     if not root.exists():
@@ -77,7 +63,6 @@ def discover_models(model_root: Optional[Path] = None) -> Dict[str, Path]:
 
 
 def load_model(folder: Path) -> tuple[xgb.XGBClassifier, dict]:
-    """Load model.json + metadata.json from a model folder."""
     with open(folder / "metadata.json") as f:
         meta = json.load(f)
     model = xgb.XGBClassifier()
@@ -90,19 +75,7 @@ def run_single_model(
     meta: dict,
     params_df: pd.DataFrame,
 ) -> dict:
-    """
-    Run inference for one model on a single-row params vector.
 
-    Returns a dict with:
-      probability     float   raw predicted probability of abnormality
-      binary          int     0 or 1 using model's best_threshold
-      threshold       float   threshold used
-      score           int     1–4 clinical score
-      n_features_used int     how many features the model needs
-      n_features_avail int    how many of those are in params_df
-      missing_features list   names of features not in params_df
-      cv_metrics      dict    AUPRC, AUROC, F1, etc. from training CV
-    """
     final_feats = meta["final_features"]
     threshold   = float(meta["best_threshold"])
     cv_metrics  = meta.get("cv_metrics", {})
@@ -138,21 +111,7 @@ def run_all_models(
     params_df: pd.DataFrame,
     model_root: Optional[Path] = None,
 ) -> Dict[str, dict]:
-    """
-    Run params_df through every available model.
 
-    Returns nested dict:
-      {
-        model_id: {
-          "result":   {probability, binary, threshold, score, ...},
-          "meta":     {physician, label_mode, target, cv_metrics, ...},
-          "available": True/False
-        },
-        ...
-      }
-    Also fills in "available: False" entries for any of the 20 expected
-    models that were not found on disk.
-    """
     available = discover_models(model_root)
     expected  = _expected_model_ids()
     output    = {}
@@ -192,10 +151,7 @@ def run_all_models(
 
 
 def results_to_dataframe(all_results: Dict[str, dict]) -> pd.DataFrame:
-    """
-    Flatten run_all_models() output into a tidy DataFrame for download.
-    One row per model.
-    """
+
     rows = []
     for mid, entry in all_results.items():
         row = {"model_id": mid, "available": entry["available"]}
@@ -219,12 +175,7 @@ def get_view(
     physician: str,     # "general" or physician name
     label_mode: str,    # "strict" or "relaxed"
 ) -> Dict[str, dict]:
-    """
-    Filter run_all_models() output to the 5 targets for one
-    physician+label_mode combination.
 
-    Returns {target: entry_dict} for the 5 targets.
-    """
     view = {}
     for target in ALL_TARGETS:
         mid = _model_id(physician, label_mode, target)
