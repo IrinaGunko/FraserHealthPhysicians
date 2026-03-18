@@ -1472,7 +1472,7 @@ abnormality and is better at detecting subtle findings.
             row2_bar_html = ""
             if phys_bar_marks:
                 row2_bar_html = f"""
-<p style="color:#00456A;font-size:12px;font-weight:700;margin:14px 0 4px 0;">
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:6px 0 2px 0;">
   Abnormality — Per Physician
 </p>
 {_threshold_bar_html(phys_bar_marks)}"""
@@ -1484,7 +1484,7 @@ abnormality and is better at detecting subtle findings.
 {_threshold_bar_html(gen_bar_marks)}
 {row2_bar_html}
 </div></body></html>"""
-            spectrum_height = 300 + (280 if phys_bar_marks else 0)
+            spectrum_height = 220 + (214 if phys_bar_marks else 0)
             components.html(bar_html, height=spectrum_height, scrolling=False)
 
         # ── Explainer: Abnormality Spectrum bar ───────────────────────────────
@@ -1546,7 +1546,7 @@ the threshold = borderline, warrants careful human review.
         row2_html = ""
         if phys_gauge_svgs:
             row2_html = f"""
-<p style="color:#00456A;font-size:12px;font-weight:700;margin:14px 0 6px 0;">
+<p style="color:#00456A;font-size:12px;font-weight:700;margin:6px 0 4px 0;">
   Abnormality — Per Physician
 </p>
 <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:nowrap;">
@@ -1562,13 +1562,13 @@ the threshold = borderline, warrants careful human review.
 {''.join(gen_gauge_svgs)}
 </div>
 {row2_html}
-<p style="color:#8B9DB3;font-size:11px;margin:10px 0 0 0;text-align:center;">
+<p style="color:#8B9DB3;font-size:11px;margin:4px 0 0 0;text-align:center;">
 🟢 Normal zone &nbsp;·&nbsp; 🟡 Borderline band around threshold &nbsp;·&nbsp;
 🔴 Abnormal zone
 </p>
 </body></html>"""
 
-        gauge_height = 275 + (290 if phys_gauge_svgs else 0)
+        gauge_height = 230 + (222 if phys_gauge_svgs else 0)
         components.html(gauges_html, height=gauge_height, scrolling=False)
 
         # ── Explainer: Gauge dials ────────────────────────────────────────────
