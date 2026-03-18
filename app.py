@@ -2240,6 +2240,176 @@ model's performance on abnormal cases should be interpreted with particular care
 """,
                     )
 
+            # ── SHAP Dependence Explorer ──────────────────────────────────────
+            st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
+            st.markdown('<h4 style="color:#00456A;margin:0.2rem 0 0.2rem 0;">🔎 SHAP Dependence Explorer</h4>', unsafe_allow_html=True)
+
+            clinical_explainer(
+                key="model_shap_dependence",
+                label="SHAP Dependence Explorer",
+                content_html="""
+<strong>What this shows:</strong> For the selected feature, every training sample is plotted as a dot:
+<em>X-axis</em> = the actual measured value of that feature, <em>Y-axis</em> = its SHAP contribution
+(how much it pushed the model toward abnormal or normal for that sample).<br><br>
+<strong>How to read it:</strong><br>
+&nbsp;&nbsp;• Dots <strong>above zero</strong> (red) = this feature value pushed the model toward <em>abnormal</em><br>
+&nbsp;&nbsp;• Dots <strong>below zero</strong> (green) = pushed toward <em>normal</em><br>
+&nbsp;&nbsp;• The <strong>shape of the cloud</strong> tells you the relationship: a downward slope means
+higher feature values → more normal; an upward slope → more abnormal; flat → feature value doesn't matter much<br>
+&nbsp;&nbsp;• The <strong>blue dashed line</strong> marks the value for <em>this recording</em> (if available)<br><br>
+<strong>Clinical use:</strong> "If this patient's alpha peak frequency were higher, would the model
+be less concerned?" — read directly off the chart.
+""",
+            )
+
+            _shap_csv_path = model_dir / "shap_values_top30.csv"
+            _bg_npy_path   = model_dir / "shap_background.npy"
+
+            if _shap_csv_path.exists() and _bg_npy_path.exists():
+                @st.cache_data(show_spinner=False)
+                def _load_shap_dependence(shap_path: str, bg_path: str, feat_list: tuple):
+                    _sv  = pd.read_csv(shap_path)          # N_samples × 30 SHAP cols
+                    _bg  = np.load(bg_path)                 # (200, 55) feature values
+                    _bg_df = pd.DataFrame(_bg, columns=list(feat_list))
+                    # keep only features present in both
+                    _common = [f for f in _sv.columns if f in _bg_df.columns]
+                    return _sv[_common], _bg_df[_common]
+
+                _feat_list = tuple(meta.get("final_features", []))
+                _shap_df, _feat_df = _load_shap_dependence(
+                    str(_shap_csv_path), str(_bg_npy_path), _feat_list
+                )
+
+                # Feature selector — ordered by mean |SHAP|
+                _feat_order = _shap_df.abs().mean().sort_values(ascending=False).index.tolist()
+                _sel_feat = st.selectbox(
+                    "Select feature to explore",
+                    _feat_order,
+                    key=f"dep_feat_{mid}",
+                )
+
+                if _sel_feat and _sel_feat in _feat_df.columns:
+                    _x_vals  = _feat_df[_sel_feat].values        # feature values (200 bg samples)
+                    _y_vals  = _shap_df[_sel_feat].values        # SHAP values (N training samples)
+
+                    # X values may have fewer rows than SHAP if bg is a subset — use the shorter
+                    _n      = min(len(_x_vals), len(_y_vals))
+                    _x_vals = _x_vals[:_n]
+                    _y_vals = _y_vals[:_n]
+
+                    # Current recording value for this feature
+                    _cur_val = None
+                    if st.session_state.params_df is not None:
+                        _pdf = st.session_state.params_df
+                        if _sel_feat in _pdf.columns:
+                            _cur_val = float(_pdf[_sel_feat].iloc[0])
+
+                    # ── Build SVG scatter ─────────────────────────────────────
+                    SVG_W, SVG_H = 820, 340
+                    L, R, T, B   = 62, 20, 20, 50   # margins
+
+                    _xmin, _xmax = float(np.nanmin(_x_vals)), float(np.nanmax(_x_vals))
+                    _ymin, _ymax = float(np.nanmin(_y_vals)), float(np.nanmax(_y_vals))
+                    _xpad = (_xmax - _xmin) * 0.04 or 0.1
+                    _ypad = (_ymax - _ymin) * 0.08 or 0.1
+                    _xmin -= _xpad;  _xmax += _xpad
+                    _ymin -= _ypad;  _ymax += _ypad
+
+                    PW = SVG_W - L - R   # plot width
+                    PH = SVG_H - T - B   # plot height
+
+                    def _px(v, lo, hi, size):
+                        return L + (v - lo) / (hi - lo) * PW if size == "x" else T + (1 - (v - lo) / (hi - lo)) * PH
+
+                    def _dot_color(shap_v):
+                        # green (negative SHAP) → white (zero) → red (positive SHAP)
+                        if shap_v >= 0:
+                            t = min(1.0, shap_v / max(abs(_ymax), 1e-6))
+                            r = int(220 + (231 - 220) * t); g = int(220 * (1 - t)); b = int(220 * (1 - t))
+                        else:
+                            t = min(1.0, abs(shap_v) / max(abs(_ymin), 1e-6))
+                            r = int(220 * (1 - t)); g = int(180 + (39 - 180) * t + 220 * (1 - t)); b = int(220 * (1 - t))
+                        return f"#{max(0,min(255,r)):02X}{max(0,min(255,g)):02X}{max(0,min(255,b)):02X}"
+
+                    # Zero line Y position
+                    _zero_y = _px(0.0, _ymin, _ymax, "y")
+
+                    dots = []
+                    for xi, yi in zip(_x_vals, _y_vals):
+                        if np.isnan(xi) or np.isnan(yi):
+                            continue
+                        cx = _px(xi, _xmin, _xmax, "x")
+                        cy = _px(yi, _ymin, _ymax, "y")
+                        col = _dot_color(yi)
+                        dots.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3.5" fill="{col}" opacity="0.55"/>')
+
+                    # Axis ticks
+                    x_ticks = ""; y_ticks = ""
+                    for ti in range(6):
+                        tv = _xmin + ti * (_xmax - _xmin) / 5
+                        tx = _px(tv, _xmin, _xmax, "x")
+                        x_ticks += (f'<line x1="{tx:.1f}" y1="{T+PH}" x2="{tx:.1f}" y2="{T+PH+5}" stroke="#AAB8C2" stroke-width="1"/>'
+                                    f'<text x="{tx:.1f}" y="{T+PH+17}" text-anchor="middle" font-size="10" fill="#5A6B7D">{tv:.2f}</text>')
+                    for ti in range(6):
+                        tv = _ymin + ti * (_ymax - _ymin) / 5
+                        ty = _px(tv, _ymin, _ymax, "y")
+                        y_ticks += (f'<line x1="{L-5}" y1="{ty:.1f}" x2="{L}" y2="{ty:.1f}" stroke="#AAB8C2" stroke-width="1"/>'
+                                    f'<text x="{L-8}" y="{ty+4:.1f}" text-anchor="end" font-size="10" fill="#5A6B7D">{tv:.2f}</text>')
+
+                    # Current recording vertical line
+                    cur_line = ""
+                    if _cur_val is not None and _xmin <= _cur_val <= _xmax:
+                        cx2 = _px(_cur_val, _xmin, _xmax, "x")
+                        cur_line = (
+                            f'<line x1="{cx2:.1f}" y1="{T}" x2="{cx2:.1f}" y2="{T+PH}" '
+                            f'stroke="#0091B3" stroke-width="2" stroke-dasharray="6 3"/>'
+                            f'<text x="{cx2:.1f}" y="{T-5}" text-anchor="middle" font-size="10" '
+                            f'fill="#0091B3" font-weight="700">this recording ({_cur_val:.3f})</text>'
+                        )
+
+                    dep_svg = f"""
+<svg viewBox="0 0 {SVG_W} {SVG_H}" xmlns="http://www.w3.org/2000/svg"
+     style="width:100%;max-width:{SVG_W}px;display:block;">
+  <rect width="{SVG_W}" height="{SVG_H}" fill="white" rx="10"/>
+  <!-- plot area border -->
+  <rect x="{L}" y="{T}" width="{PW}" height="{PH}" fill="#F8FAFC" stroke="#D6DCE2" stroke-width="1"/>
+  <!-- zero line -->
+  <line x1="{L}" y1="{_zero_y:.1f}" x2="{L+PW}" y2="{_zero_y:.1f}"
+        stroke="#888" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="{L+4}" y="{_zero_y-4:.1f}" font-size="9" fill="#888">SHAP = 0</text>
+  <!-- above zero label -->
+  <text x="{L+PW-4}" y="{T+14}" text-anchor="end" font-size="10" fill="#B42318" font-weight="600">▲ pushes abnormal</text>
+  <!-- below zero label -->
+  <text x="{L+PW-4}" y="{T+PH-6}" text-anchor="end" font-size="10" fill="#156A3A" font-weight="600">▼ pushes normal</text>
+  {cur_line}
+  {''.join(dots)}
+  {x_ticks}
+  {y_ticks}
+  <!-- axis labels -->
+  <text x="{L + PW/2:.1f}" y="{SVG_H-4}" text-anchor="middle" font-size="11" fill="#00456A" font-weight="600">{_sel_feat}</text>
+  <text x="12" y="{T + PH/2:.1f}" text-anchor="middle" font-size="11" fill="#00456A" font-weight="600"
+        transform="rotate(-90, 12, {T + PH/2:.1f})">SHAP value</text>
+</svg>"""
+
+                    components.html(
+                        f"<!DOCTYPE html><html><body style='margin:0;padding:6px;background:transparent;'>"
+                        f"{dep_svg}</body></html>",
+                        height=SVG_H + 20,
+                        scrolling=False,
+                    )
+
+                    # Summary stats below the chart
+                    _mean_shap = float(np.mean(_y_vals))
+                    _corr      = float(np.corrcoef(_x_vals, _y_vals)[0, 1]) if len(_x_vals) > 2 else 0.0
+                    _direction = "higher value → more abnormal" if _corr > 0.05 else ("higher value → more normal" if _corr < -0.05 else "no clear linear trend")
+                    st.caption(
+                        f"**{_sel_feat}** · {len(_x_vals)} training samples · "
+                        f"mean SHAP = {_mean_shap:+.3f} · feature↔SHAP correlation r = {_corr:.2f} · "
+                        f"*{_direction}*"
+                    )
+            else:
+                st.info("SHAP dependence data not available for this model (shap_values_top30.csv or shap_background.npy missing).")
+
 st.markdown("""
 <div class="footer-authors">
     <div class="author-line">
