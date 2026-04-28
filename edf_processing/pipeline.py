@@ -34,7 +34,7 @@ def load_raw(
             montage_ch_names = set(montage.ch_names)
             eeg_chs = [ch for ch in raw.ch_names if ch in montage_ch_names]
             if not eeg_chs:
-                # Channel names may need standardisation first (e.g. "EEG Fp1" → "Fp1")
+                # Channel names may need standardisation first(e.g. "EEG Fp1" → "Fp1")
                 mne.datasets.eegbci.standardize(raw)
                 eeg_chs = [ch for ch in raw.ch_names if ch in montage_ch_names]
             dropped = [ch for ch in raw.ch_names if ch not in eeg_chs]
