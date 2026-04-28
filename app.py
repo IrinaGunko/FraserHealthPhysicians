@@ -302,6 +302,18 @@ st.markdown("""
         fill: #00456A !important;
     }
 
+    /* ── Preprocessing tab widget labels ── */
+    .stTabs .stCheckbox label,
+    .stTabs .stCheckbox label p,
+    .stTabs .stNumberInput label,
+    .stTabs .stNumberInput label p,
+    .stTabs .stSelectbox label,
+    .stTabs .stSelectbox label p,
+    .stTabs [data-testid="stWidgetLabel"],
+    .stTabs [data-testid="stWidgetLabel"] p {
+        color: #1B2A3D !important;
+    }
+
     div[data-testid="stExpander"] summary p,
     div[data-testid="stExpander"] summary span,
     div[data-testid="stExpander"] summary div,
