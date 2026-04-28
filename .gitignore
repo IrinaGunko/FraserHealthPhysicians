@@ -1,5 +1,7 @@
 .env
 .venv
+.claude/
+.claude
 __pycache__/
 .DS_Store
 dist/
@@ -7,4 +9,4 @@ build/
 .venv/
 venv/
 .vscode
-hdf/
+hdf/.DS_Store
