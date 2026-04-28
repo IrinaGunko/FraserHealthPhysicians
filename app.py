@@ -1696,18 +1696,19 @@ if tab_preproc is not None:
                     st.session_state._dl_feature_csv = df.to_csv(index=False).encode()
                     st.session_state._dl_params_csv  = params_df.to_csv(index=False).encode()
                     st.session_state.pipeline_status = "done"
-
-                    pbar_edf.progress(1.0)
-                    status_box.markdown(
-                        '<div class="status-ready">✅ Done — switch to the Predictions tab</div>',
-                        unsafe_allow_html=True,
-                    )
+                    pbar_edf.empty()
+                    status_box.empty()
+                    # Rerun so the sidebar re-renders with pipeline_status == "done"
+                    # and activates the download buttons.
+                    st.rerun()
 
                 except Exception as exc:
                     st.session_state.pipeline_status = "error"
                     st.session_state.pipeline_error = str(exc)
                     pbar_edf.empty()
                     status_box.empty()
+                    st.rerun()
+
                 finally:
                     logging.getLogger().removeHandler(_log_handler)
                     st.session_state._edf_log = _log_handler.records
