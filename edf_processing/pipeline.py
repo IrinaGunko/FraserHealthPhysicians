@@ -29,11 +29,22 @@ def load_raw(
             if "Status" in raw.ch_names:
                 raw.drop_channels(["Status"])
             montage = mne.channels.make_standard_montage(montage_name)
-            raw.set_montage(montage, on_missing="warn")
-            mne.datasets.eegbci.standardize(raw)
+            # Keep only channels that exist in the montage so non-EEG channels
+            # (EOG, EMG, ECG, respiratory) don't break the forward solution.
+            montage_ch_names = set(montage.ch_names)
+            eeg_chs = [ch for ch in raw.ch_names if ch in montage_ch_names]
+            if not eeg_chs:
+                # Channel names may need standardisation first (e.g. "EEG Fp1" → "Fp1")
+                mne.datasets.eegbci.standardize(raw)
+                eeg_chs = [ch for ch in raw.ch_names if ch in montage_ch_names]
+            dropped = [ch for ch in raw.ch_names if ch not in eeg_chs]
+            if dropped:
+                logger.info("Dropping %d non-EEG / unlocated channels: %s", len(dropped), dropped)
+                raw.drop_channels(dropped)
+            raw.set_montage(montage, verbose=False)
     finally:
         os.unlink(tmp_path)
-    logger.info("Loaded %s — %d ch, %.1f s @ %.0f Hz (montage: %s)",
+    logger.info("Loaded %s — %d EEG ch, %.1f s @ %.0f Hz (montage: %s)",
                 filename, len(raw.ch_names), raw.times[-1], raw.info["sfreq"], montage_name)
     return raw
 
