@@ -761,8 +761,15 @@ with st.sidebar:
     st.markdown("#### 📥 Downloads")
     is_done = status == "done"
 
+    # Compute on demand if session was restarted after the pipeline ran
     _fcsv = st.session_state.get("_dl_feature_csv")
     _pcsv = st.session_state.get("_dl_params_csv")
+    if _fcsv is None and st.session_state.feature_df is not None:
+        _fcsv = st.session_state.feature_df.to_csv(index=False).encode()
+        st.session_state._dl_feature_csv = _fcsv
+    if _pcsv is None and st.session_state.params_df is not None:
+        _pcsv = st.session_state.params_df.to_csv(index=False).encode()
+        st.session_state._dl_params_csv = _pcsv
 
     if is_done and _fcsv is not None:
         st.download_button(
