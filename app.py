@@ -463,6 +463,9 @@ for _k, _v in [
     ("_edf_bytes", None),
     ("_edf_filename", None),
     ("_edf_log", []),
+    # pre-computed download payloads
+    ("_dl_feature_csv", None),
+    ("_dl_params_csv", None),
 ]:
     if _k not in st.session_state:
         st.session_state[_k] = _v
@@ -666,6 +669,8 @@ with st.sidebar:
                 pbar.progress(0.96, text="Running 20 models…")
                 all_results = run_all_models(params_df)
                 st.session_state.all_results = all_results
+                st.session_state._dl_feature_csv = st.session_state.feature_df.to_csv(index=False).encode() if st.session_state.feature_df is not None else None
+                st.session_state._dl_params_csv  = params_df.to_csv(index=False).encode()
                 st.session_state.pipeline_status = "done"
 
             else:
@@ -697,6 +702,8 @@ with st.sidebar:
                 pbar.progress(0.96, text="Running 20 models…")
                 all_results = run_all_models(params_df)
                 st.session_state.all_results = all_results
+                st.session_state._dl_feature_csv = st.session_state.feature_df.to_csv(index=False).encode() if st.session_state.feature_df is not None else None
+                st.session_state._dl_params_csv  = params_df.to_csv(index=False).encode()
                 st.session_state.pipeline_status = "done"
 
         except Exception as exc:
@@ -754,33 +761,32 @@ with st.sidebar:
     st.markdown("#### 📥 Downloads")
     is_done = status == "done"
 
-    c1, c2 = st.columns(2)
-    _feature_df = st.session_state.feature_df
-    _params_df  = st.session_state.params_df
+    _fcsv = st.session_state.get("_dl_feature_csv")
+    _pcsv = st.session_state.get("_dl_params_csv")
 
-    with c1:
-        if is_done and _feature_df is not None:
-            st.download_button(
-                "Feature CSV",
-                data=_feature_df.to_csv(index=False).encode(),
-                file_name="eeg_features.csv",
-                mime="text/csv",
-                use_container_width=True,
-            )
-        else:
-            st.button("Feature CSV", disabled=True, use_container_width=True)
+    if is_done and _fcsv is not None:
+        st.download_button(
+            "Feature CSV",
+            data=_fcsv,
+            file_name="eeg_features.csv",
+            mime="text/csv",
+            key="dl_feature_csv",
+            use_container_width=True,
+        )
+    else:
+        st.button("Feature CSV", disabled=True, use_container_width=True, key="dl_feature_csv_dis")
 
-    with c2:
-        if is_done and _params_df is not None:
-            st.download_button(
-                "Params Vector",
-                data=_params_df.to_csv(index=False).encode(),
-                file_name="eeg_params.csv",
-                mime="text/csv",
-                use_container_width=True,
-            )
-        else:
-            st.button("Params Vector", disabled=True, use_container_width=True)
+    if is_done and _pcsv is not None:
+        st.download_button(
+            "Params Vector",
+            data=_pcsv,
+            file_name="eeg_params.csv",
+            mime="text/csv",
+            key="dl_params_csv",
+            use_container_width=True,
+        )
+    else:
+        st.button("Params Vector", disabled=True, use_container_width=True, key="dl_params_csv_dis")
 
     if is_done and st.session_state.all_results:
         rcsv = results_to_dataframe(st.session_state.all_results).to_csv(index=False).encode()
@@ -789,6 +795,7 @@ with st.sidebar:
             data=rcsv,
             file_name="eeg_model_results.csv",
             mime="text/csv",
+            key="dl_model_results",
             use_container_width=True,
         )
 
@@ -1679,6 +1686,8 @@ if tab_preproc is not None:
                     _edf_progress("Running models…")
                     all_results = run_all_models(params_df)
                     st.session_state.all_results = all_results
+                    st.session_state._dl_feature_csv = df.to_csv(index=False).encode()
+                    st.session_state._dl_params_csv  = params_df.to_csv(index=False).encode()
                     st.session_state.pipeline_status = "done"
 
                     pbar_edf.progress(1.0)
