@@ -196,33 +196,19 @@ def _resolve_sa_path(sa_csv_path: str | None) -> str:
     )
 
 
-def run_pipeline(
-    h5_path,
-    config=None,
-    sa_csv_path=None,
-    save_csv_path=None,
-    progress_callback=None,
-    debug=False,
-    debug_plot_path=None,
+def _run_core(
+    signals,
+    label_names,
+    metadata,
+    config,
+    sa_path,
+    save_csv_path,
+    progress_callback,
+    debug,
+    debug_plot_path,
 ):
-
-    if config is None:
-        config = AlphaAnalysisConfig()
-
-    sa_path = _resolve_sa_path(sa_csv_path)
-    logger.info("SA axis CSV: %s", sa_path)
-
-    if debug:
-        debug_hdf5(h5_path)
-
-    signals, label_names, metadata = load_fraser_hdf5(h5_path)
+    """Shared feature-extraction logic used by both entry points."""
     n_parcels = len(label_names)
-
-    if debug:
-        logger.info("After load_fraser_hdf5:")
-        logger.info("  signals.shape : %s", signals.shape)
-        logger.info("  n_parcels     : %d", n_parcels)
-        logger.info("  config.sfreq  : %s", config.sfreq)
 
     logger.info("Computing PSD for %d parcels ...", n_parcels)
     psd, freqs = compute_psd(signals, config)
@@ -326,7 +312,6 @@ def run_pipeline(
         if progress_callback:
             progress_callback(i + 1, n_parcels)
 
-    # -- Specparam summary ----------------------------------------------------
     logger.info("Specparam summary:")
     logger.info("  total parcels             : %d", n_parcels)
     logger.info("  fit failed                : %d", n_fit_failed)
@@ -335,7 +320,6 @@ def run_pipeline(
     logger.info("  rows collected            : %d", len(all_rows))
 
     if not all_rows:
-        logger.warning("No alpha peaks found in %s", h5_path)
         return pd.DataFrame()
 
     df = pd.DataFrame(all_rows)
@@ -372,3 +356,86 @@ def run_pipeline(
     logger.info("Done — %d rows, %d parcels with alpha peaks",
                 len(df), df["label"].nunique())
     return df
+
+
+def run_pipeline(
+    h5_path,
+    config=None,
+    sa_csv_path=None,
+    save_csv_path=None,
+    progress_callback=None,
+    debug=False,
+    debug_plot_path=None,
+):
+
+    if config is None:
+        config = AlphaAnalysisConfig()
+
+    sa_path = _resolve_sa_path(sa_csv_path)
+    logger.info("SA axis CSV: %s", sa_path)
+
+    if debug:
+        debug_hdf5(h5_path)
+
+    signals, label_names, metadata = load_fraser_hdf5(h5_path)
+    n_parcels = len(label_names)
+
+    if debug:
+        logger.info("After load_fraser_hdf5:")
+        logger.info("  signals.shape : %s", signals.shape)
+        logger.info("  n_parcels     : %d", n_parcels)
+        logger.info("  config.sfreq  : %s", config.sfreq)
+
+    return _run_core(
+        signals, label_names, metadata, config, sa_path,
+        save_csv_path, progress_callback, debug, debug_plot_path,
+    )
+
+
+def run_pipeline_from_array(
+    parcel_signals,
+    label_names,
+    sfreq: float,
+    subject_id: str = "unknown",
+    config=None,
+    sa_csv_path=None,
+    save_csv_path=None,
+    progress_callback=None,
+):
+    """Feature extraction from a parcel signals array (EDF/FIF path).
+
+    parcel_signals: (n_parcels, n_timepoints) numpy array
+    label_names:    list of strings matching Schaefer label names
+    sfreq:          sampling rate after preprocessing
+    """
+    if config is None:
+        config = AlphaAnalysisConfig()
+    config = AlphaAnalysisConfig(
+        sfreq=int(sfreq),
+        psd_fmin=config.psd_fmin,
+        psd_fmax=config.psd_fmax,
+        psd_n_fft=config.psd_n_fft,
+        peak_range=config.peak_range,
+        fit_freq_range=config.fit_freq_range,
+        peak_width_limits=config.peak_width_limits,
+        max_n_peaks=config.max_n_peaks,
+        min_peak_height=config.min_peak_height,
+        peak_threshold=config.peak_threshold,
+        aperiodic_mode=config.aperiodic_mode,
+        kmeans_range_freq=config.kmeans_range_freq,
+        kmeans_range_power=config.kmeans_range_power,
+        silhouette_min_score=config.silhouette_min_score,
+        random_state=config.random_state,
+        alpha_start=config.alpha_start,
+        alpha_end=config.alpha_end,
+        bands=config.bands,
+    )
+
+    sa_path = _resolve_sa_path(sa_csv_path)
+    logger.info("SA axis CSV: %s", sa_path)
+    metadata = {"subject_id": subject_id}
+
+    return _run_core(
+        parcel_signals, label_names, metadata, config, sa_path,
+        save_csv_path, progress_callback, None, None,
+    )
