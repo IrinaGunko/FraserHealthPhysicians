@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -461,6 +462,7 @@ for _k, _v in [
     # EDF/FIF path
     ("_edf_bytes", None),
     ("_edf_filename", None),
+    ("_edf_log", []),
 ]:
     if _k not in st.session_state:
         st.session_state[_k] = _v
@@ -1615,6 +1617,20 @@ if tab_preproc is not None:
                         unsafe_allow_html=True,
                     )
 
+                # ── capture log lines during the full run ─────────────────────
+                class _ListHandler(logging.Handler):
+                    def __init__(self):
+                        super().__init__()
+                        self.records = []
+                    def emit(self, record):
+                        self.records.append(self.format(record))
+
+                _log_handler = _ListHandler()
+                _log_handler.setFormatter(logging.Formatter("%(asctime)s  %(name)s  %(levelname)s  %(message)s",
+                                                             datefmt="%H:%M:%S"))
+                _log_handler.setLevel(logging.DEBUG)
+                logging.getLogger().addHandler(_log_handler)
+
                 try:
                     parcel_signals, label_names, sfreq = run_edf_pipeline(
                         file_bytes=st.session_state._edf_bytes,
@@ -1676,13 +1692,33 @@ if tab_preproc is not None:
                     st.session_state.pipeline_error = str(exc)
                     pbar_edf.empty()
                     status_box.empty()
+                finally:
+                    logging.getLogger().removeHandler(_log_handler)
+                    st.session_state._edf_log = _log_handler.records
 
             edf_status = st.session_state.pipeline_status
-            edf_err = st.session_state.get("pipeline_error")
+            edf_err    = st.session_state.get("pipeline_error")
             if edf_status == "error" and edf_err:
                 st.error(f"Pipeline error: {edf_err}")
             elif edf_status == "done":
                 st.success("Predictions ready — open the 📊 Predictions tab.")
+
+            # ── Processing log expander ───────────────────────────────────────
+            edf_log = st.session_state.get("_edf_log", [])
+            if edf_log:
+                with st.expander("🗒️ Processing log", expanded=False):
+                    st.markdown(
+                        '<div style="font-family:monospace;font-size:0.75rem;'
+                        'background:#1B2A3D;color:#C8D8E8;border-radius:6px;'
+                        'padding:0.8rem 1rem;max-height:340px;overflow-y:auto;'
+                        'white-space:pre-wrap;line-height:1.5;">'
+                        + "\n".join(
+                            line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                            for line in edf_log
+                        )
+                        + "</div>",
+                        unsafe_allow_html=True,
+                    )
 
 with tab_pred:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
