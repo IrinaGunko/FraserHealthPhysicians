@@ -10,3 +10,5 @@ build/
 venv/
 .vscode
 hdf/.DS_Store
+hdf/
+hdf

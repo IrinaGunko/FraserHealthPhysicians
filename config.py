@@ -57,18 +57,23 @@ if ON_CLUSTER:
 else:
     BASE_DIR     = Path(__file__).parent
 
-EEG_FOLDER   = str(BASE_DIR / "raw_eeg")
-OUTPUT_DIR   = str(BASE_DIR / "eeg_output")
+EEG_FOLDER = str(BASE_DIR / "raw_eeg")
+OUTPUT_DIR = str(BASE_DIR / "eeg_output")
 SUBJECTS_DIR = str(BASE_DIR)
-H5_FOLDER    = str(BASE_DIR / "h_5")
-FSAVERAGE_DIR = Path(os.getenv("FSAVERAGE_DIR", BASE_DIR / "fsaverage"))
+H5_FOLDER = str(BASE_DIR / "h_5")
 
-SUBJECTS_DIR = str(FSAVERAGE_DIR.parent)
 DEFAULT_SUBJECT = "fsaverage"
 PROJ_DIR = SUBJECTS_DIR
 
-TRANS = str(FSAVERAGE_DIR / "bem" / "fsaverage-trans.fif")
-SRC_ICO5 = str(FSAVERAGE_DIR / "bem" / "fsaverage-ico-5-src.fif")
-BEM = str(FSAVERAGE_DIR / "bem" / "fsaverage-5120-5120-5120-bem-sol.fif")
-MNI152 = str(BASE_DIR / "mni152") 
+TRANS = str(BASE_DIR / "fsaverage" / "bem" / "fsaverage-trans.fif")
+SRC_ICO5 = str(BASE_DIR / "fsaverage" / "bem" / "fsaverage-ico-5-src.fif")
+
+BEM = str(
+    Path(os.getenv(
+        "BEM_PATH",
+        BASE_DIR / "fsaverage" / "bem" / "fsaverage-5120-5120-5120-bem-sol.fif"
+    ))
+)
+
+MNI152 = str(BASE_DIR / "mni152")
 S_A_AXIS_RANKS = str(BASE_DIR / "S-A_Axis" / "Sensorimotor_Association_Axis_AverageRanks.csv")
