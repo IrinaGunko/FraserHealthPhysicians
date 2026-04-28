@@ -7,5 +7,4 @@ build/
 .venv/
 venv/
 .vscode
-fsaverage/
 hdf/
