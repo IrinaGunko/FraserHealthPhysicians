@@ -753,34 +753,32 @@ with st.sidebar:
     is_done = status == "done"
 
     c1, c2 = st.columns(2)
+    _feature_df = st.session_state.feature_df
+    _params_df  = st.session_state.params_df
+
     with c1:
-        fcsv = (
-            st.session_state.feature_df.to_csv(index=False).encode()
-            if st.session_state.feature_df is not None
-            else b""
-        )
-        st.download_button(
-            "Feature CSV",
-            data=fcsv,
-            file_name="eeg_features.csv",
-            mime="text/csv",
-            disabled=not is_done,
-            use_container_width=True,
-        )
+        if is_done and _feature_df is not None:
+            st.download_button(
+                "Feature CSV",
+                data=_feature_df.to_csv(index=False).encode(),
+                file_name="eeg_features.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+        else:
+            st.button("Feature CSV", disabled=True, use_container_width=True)
+
     with c2:
-        pcsv = (
-            st.session_state.params_df.to_csv(index=False).encode()
-            if st.session_state.params_df is not None
-            else b""
-        )
-        st.download_button(
-            "Params Vector",
-            data=pcsv,
-            file_name="eeg_params.csv",
-            mime="text/csv",
-            disabled=not is_done,
-            use_container_width=True,
-        )
+        if is_done and _params_df is not None:
+            st.download_button(
+                "Params Vector",
+                data=_params_df.to_csv(index=False).encode(),
+                file_name="eeg_params.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+        else:
+            st.button("Params Vector", disabled=True, use_container_width=True)
 
     if is_done and st.session_state.all_results:
         rcsv = results_to_dataframe(st.session_state.all_results).to_csv(index=False).encode()
