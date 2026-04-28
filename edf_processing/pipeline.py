@@ -216,7 +216,7 @@ def run_edf_pipeline(
 
     _step("Extracting parcel time courses…")
     parcel_signals = mne.extract_label_time_course(
-        stc, labels, src=src, mode="pca_flip", verbose=False
+        stc, labels, src=src, mode="mean", verbose=False
     )
     label_names = [lb.name for lb in labels]
 
