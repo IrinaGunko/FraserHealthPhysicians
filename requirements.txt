@@ -12,5 +12,6 @@ matplotlib==3.10.8
 joblib==1.5.3
 xgboost==3.2.0
 mne==1.11.0
+pyprep==0.6.0
 scikit-learn==1.8.0
 diptest==0.10.0

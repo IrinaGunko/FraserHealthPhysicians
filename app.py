@@ -3,13 +3,20 @@ import tempfile
 from pathlib import Path
 import math
 
+try:
+    import pyprep  # noqa: F401
+    _PYPREP_AVAILABLE = True
+except ImportError:
+    _PYPREP_AVAILABLE = False
+
 import numpy as np
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from extract_features import run_pipeline
+from extract_features import run_pipeline, run_pipeline_from_array
 from collapse_features import collapse_to_vector
+from edf_processing.pipeline import run_edf_pipeline
 from run_models import (
     run_all_models,
     get_view,
@@ -451,6 +458,9 @@ for _k, _v in [
     ("pipeline_error", None),
     ("_csv_df", None),
     ("_csv_type", None),
+    # EDF/FIF path
+    ("_edf_bytes", None),
+    ("_edf_filename", None),
 ]:
     if _k not in st.session_state:
         st.session_state[_k] = _v
@@ -470,11 +480,39 @@ with st.sidebar:
     st.markdown("#### 📂 Data Source")
     source = st.radio(
         "src",
-        ["Upload HDF5 file", "Upload CSV vector", "Use demo recording"],
+        [
+            "Upload raw EDF or FIF file",
+            "Upload HDF5 file",
+            "Upload CSV vector",
+            "Use demo recording",
+        ],
         label_visibility="collapsed",
     )
 
-    if source == "Upload HDF5 file":
+    if source == "Upload raw EDF or FIF file":
+        uploaded_edf = st.file_uploader(
+            "EDF / FIF",
+            type=["edf", "fif"],
+            help="Raw EEG recording (.edf or .fif). Configure preprocessing in the Preprocessing tab.",
+        )
+        if uploaded_edf is not None:
+            st.session_state.selected_file = uploaded_edf.name
+            st.session_state.file_source = "edf"
+            st.session_state._edf_bytes = uploaded_edf.getvalue()
+            st.session_state._edf_filename = uploaded_edf.name
+            name_trunc = uploaded_edf.name[:40] + ("…" if len(uploaded_edf.name) > 40 else "")
+            st.markdown(
+                f'<div class="status-ready">✅ Loaded: {name_trunc}</div>',
+                unsafe_allow_html=True,
+            )
+        st.markdown(
+            "<p style='color:#5A6B7D;font-size:0.78rem;margin:0.4rem 0 0 0;'>"
+            "Configure preprocessing steps in the <strong>⚙️ Preprocessing</strong> tab, "
+            "then click <em>Preprocess &amp; Predict</em>.</p>",
+            unsafe_allow_html=True,
+        )
+
+    elif source == "Upload HDF5 file":
         uploaded = st.file_uploader(
             "HDF5",
             type=["hdf5", "h5"],
@@ -577,7 +615,14 @@ with st.sidebar:
     st.markdown("#### ⚙️ Pipeline Controls")
     can_run = st.session_state.selected_file is not None
 
-    if st.button("🚀 Run Pipeline", disabled=not can_run, use_container_width=True):
+    if source == "Upload raw EDF or FIF file":
+        st.markdown(
+            "<p style='color:#5A6B7D;font-size:0.78rem;margin:0;'>"
+            "Use the <strong>⚙️ Preprocessing</strong> tab to configure and run the pipeline.</p>",
+            unsafe_allow_html=True,
+        )
+
+    if source != "Upload raw EDF or FIF file" and st.button("🚀 Run Pipeline", disabled=not can_run, use_container_width=True):
         st.session_state.pipeline_status = "processing"
         st.session_state.feature_df = None
         st.session_state.params_df = None
@@ -1395,11 +1440,251 @@ def _empty(icon, title):
         unsafe_allow_html=True,
     )
 
-tab_pred, tab_explain, tab_model = st.tabs([
-    "📊  Predictions",
-    "🔍  Explanations",
-    "🔬  Model Details",
-])
+if source == "Upload raw EDF or FIF file":
+    tab_preproc, tab_pred, tab_explain, tab_model = st.tabs([
+        "⚙️  Preprocessing",
+        "📊  Predictions",
+        "🔍  Explanations",
+        "🔬  Model Details",
+    ])
+else:
+    tab_preproc = None
+    tab_pred, tab_explain, tab_model = st.tabs([
+        "📊  Predictions",
+        "🔍  Explanations",
+        "🔬  Model Details",
+    ])
+
+# ── Preprocessing tab (EDF/FIF only) ──────────────────────────────────────────
+if tab_preproc is not None:
+    with tab_preproc:
+        edf_ready = st.session_state.get("_edf_bytes") is not None
+
+        if not edf_ready:
+            _empty("⚙️", "Upload an EDF or FIF file first")
+        else:
+            fname = st.session_state.get("_edf_filename", "")
+            st.markdown(
+                f'<p style="color:#5A6B7D;font-size:0.85rem;margin:0 0 0.8rem 0;">'
+                f'File: <strong>{fname}</strong></p>',
+                unsafe_allow_html=True,
+            )
+
+            _MONTAGES = [
+                "standard_1020",
+                "standard_1005",
+                "standard_alphabetic",
+                "biosemi16",
+                "biosemi32",
+                "biosemi64",
+                "biosemi128",
+                "biosemi256",
+                "easycap-M1",
+                "easycap-M10",
+                "mgh60",
+                "mgh70",
+            ]
+            montage_name = st.selectbox(
+                "EEG Montage",
+                _MONTAGES,
+                index=0,
+                key="pp_montage",
+                help="Electrode layout applied when loading the file. "
+                     "standard_1020 covers most clinical EEG caps.",
+            )
+
+            st.markdown(
+                '<h4 style="color:#00456A;margin:0.8rem 0 0.5rem 0;">Signal Processing</h4>',
+                unsafe_allow_html=True,
+            )
+
+            col_notch, col_bp, col_rs = st.columns(3)
+
+            with col_notch:
+                notch_on = st.checkbox("Notch Filter", value=True, key="pp_notch_on")
+                notch_freq = st.number_input(
+                    "Frequency (Hz)", min_value=1.0, max_value=500.0,
+                    value=50.0, step=1.0, key="pp_notch_freq",
+                    disabled=not notch_on,
+                )
+                notch_method = st.selectbox(
+                    "Method", ["iir", "fir"], key="pp_notch_method",
+                    disabled=not notch_on,
+                )
+
+            with col_bp:
+                bp_on = st.checkbox("Bandpass Filter", value=True, key="pp_bp_on")
+                bp_lfreq = st.number_input(
+                    "Low (Hz)", min_value=0.01, max_value=200.0,
+                    value=0.5, step=0.5, key="pp_bp_lfreq",
+                    disabled=not bp_on,
+                )
+                bp_hfreq = st.number_input(
+                    "High (Hz)", min_value=1.0, max_value=500.0,
+                    value=55.0, step=1.0, key="pp_bp_hfreq",
+                    disabled=not bp_on,
+                )
+                bp_method = st.selectbox(
+                    "Method", ["iir", "fir"], key="pp_bp_method",
+                    disabled=not bp_on,
+                )
+
+            with col_rs:
+                rs_on = st.checkbox("Resample", value=True, key="pp_rs_on")
+                rs_target = st.number_input(
+                    "Target (Hz)", min_value=64.0, max_value=2048.0,
+                    value=256.0, step=1.0, key="pp_rs_target",
+                    disabled=not rs_on,
+                )
+
+            st.markdown('<div style="margin-top:0.6rem;"></div>', unsafe_allow_html=True)
+
+            if not _PYPREP_AVAILABLE:
+                st.markdown(
+                    '<p style="color:#8B9DB3;font-size:0.8rem;margin:0;">'
+                    '⚠️ PyPrep not installed — run <code>pip install pyprep</code> to enable bad-channel detection.</p>',
+                    unsafe_allow_html=True,
+                )
+            pyprep_on = st.checkbox(
+                "PyPrep — RANSAC bad-channel detection & interpolation",
+                value=False,
+                key="pp_pyprep_on",
+                disabled=not _PYPREP_AVAILABLE,
+            )
+            if pyprep_on:
+                pp_line_noise = st.number_input(
+                    "Line noise (Hz)", min_value=1.0, max_value=200.0,
+                    value=50.0, step=1.0, key="pp_pyprep_line_noise",
+                )
+            else:
+                pp_line_noise = 50.0
+
+            st.markdown('<div style="margin-top:0.8rem;"></div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div style="background:#F0F2F4;border-radius:8px;padding:0.8rem 1rem;'
+                'border-left:3px solid #0091B3;margin-bottom:0.8rem;">'
+                '<p style="color:#00456A;font-weight:700;margin:0 0 0.3rem 0;">'
+                '🔬 Source Reconstruction (fixed)</p>'
+                '<p style="color:#5A6B7D;font-size:0.82rem;margin:0;">'
+                'Average reference projection → fsaverage forward solution (EEG) → '
+                'LCMV beamformer → Schaefer 400 parcels, 17 networks</p>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+            run_edf_btn = st.button(
+                "▶  Preprocess & Predict",
+                use_container_width=True,
+                type="primary",
+                key="run_edf_btn",
+            )
+
+            if run_edf_btn:
+                st.session_state.pipeline_status = "processing"
+                st.session_state.feature_df = None
+                st.session_state.params_df = None
+                st.session_state.all_results = None
+                st.session_state.pipeline_error = None
+
+                status_box = st.empty()
+                pbar_edf = st.progress(0)
+
+                _EDF_STEPS = [
+                    "Loading raw file…",
+                    f"Applying notch filter at {notch_freq} Hz…" if notch_on else None,
+                    f"Applying bandpass filter {bp_lfreq}–{bp_hfreq} Hz…" if bp_on else None,
+                    f"Resampling to {int(rs_target)} Hz…" if rs_on else None,
+                    "Running PyPrep (bad channel detection)…" if pyprep_on else None,
+                    "Setting average reference…",
+                    "Computing forward solution…",
+                    "Applying LCMV beamformer…",
+                    "Loading Schaefer 400 parcels…",
+                    "Extracting parcel time courses…",
+                    "Extracting spectral features…",
+                    "Collapsing to model input vector…",
+                    "Running models…",
+                ]
+                _EDF_STEPS = [s for s in _EDF_STEPS if s is not None]
+                _step_total = len(_EDF_STEPS)
+                _step_counter = {"n": 0}
+
+                def _edf_progress(msg: str):
+                    _step_counter["n"] += 1
+                    frac = min(_step_counter["n"] / _step_total, 0.95)
+                    pbar_edf.progress(frac)
+                    status_box.markdown(
+                        f'<div class="status-processing">⏳ {msg}</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                try:
+                    parcel_signals, label_names, sfreq = run_edf_pipeline(
+                        file_bytes=st.session_state._edf_bytes,
+                        filename=st.session_state._edf_filename,
+                        notch_enabled=notch_on,
+                        notch_freq=notch_freq,
+                        notch_method=notch_method,
+                        bp_enabled=bp_on,
+                        bp_lfreq=bp_lfreq,
+                        bp_hfreq=bp_hfreq,
+                        bp_method=bp_method,
+                        resample_enabled=rs_on,
+                        resample_target=rs_target,
+                        pyprep_enabled=pyprep_on,
+                        pyprep_line_noise=pp_line_noise,
+                        montage_name=montage_name,
+                        progress_cb=_edf_progress,
+                    )
+
+                    _edf_progress("Extracting spectral features…")
+                    subject_id = Path(st.session_state._edf_filename).stem
+
+                    def _feat_progress(done, total):
+                        frac = 0.75 + 0.15 * (done / total if total else 0)
+                        pbar_edf.progress(frac)
+                        status_box.markdown(
+                            f'<div class="status-processing">⏳ Parcel {done}/{total}</div>',
+                            unsafe_allow_html=True,
+                        )
+
+                    df = run_pipeline_from_array(
+                        parcel_signals=parcel_signals,
+                        label_names=label_names,
+                        sfreq=sfreq,
+                        subject_id=subject_id,
+                        progress_callback=_feat_progress,
+                    )
+                    if df.empty:
+                        raise ValueError("No alpha peaks detected in parcel signals.")
+                    st.session_state.feature_df = df
+
+                    _edf_progress("Collapsing to model input vector…")
+                    params_df = collapse_to_vector(df)
+                    st.session_state.params_df = params_df
+
+                    _edf_progress("Running models…")
+                    all_results = run_all_models(params_df)
+                    st.session_state.all_results = all_results
+                    st.session_state.pipeline_status = "done"
+
+                    pbar_edf.progress(1.0)
+                    status_box.markdown(
+                        '<div class="status-ready">✅ Done — switch to the Predictions tab</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                except Exception as exc:
+                    st.session_state.pipeline_status = "error"
+                    st.session_state.pipeline_error = str(exc)
+                    pbar_edf.empty()
+                    status_box.empty()
+
+            edf_status = st.session_state.pipeline_status
+            edf_err = st.session_state.get("pipeline_error")
+            if edf_status == "error" and edf_err:
+                st.error(f"Pipeline error: {edf_err}")
+            elif edf_status == "done":
+                st.success("Predictions ready — open the 📊 Predictions tab.")
 
 with tab_pred:
     if st.session_state.pipeline_status != "done" or st.session_state.all_results is None:
