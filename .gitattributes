@@ -1,0 +1,2 @@
+*bem-sol.fif filter=lfs diff=lfs merge=lfs -text
+fsaverage/bem/fsaverage-5120-5120-5120-bem-sol.fif filter=lfs diff=lfs merge=lfs -text
