@@ -34,7 +34,61 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+# ── Disclaimer modal (shown once per session) ─────────────────────────────────
+if not st.session_state.get("_disclaimer_accepted", False):
+    @st.dialog("Research Prototype — Important Notice", width="large")
+    def _show_disclaimer():
+        st.markdown("""
+<div style="background:#FEF2F2;border-left:4px solid #A32D2D;border-radius:0 6px 6px 0;
+padding:0.7rem 1rem;margin-bottom:1rem;">
+<strong style="color:#7F1D1D;font-size:0.95rem;">
+⚠️ This tool is not approved for clinical use and must not influence patient care decisions.
+</strong>
+</div>
+""", unsafe_allow_html=True)
 
+        st.markdown("""
+**Research prototype only.** This application is an experimental research tool under active
+development by the Biomedical Physiology and Kinesiology Department, Simon Fraser University.
+It has **not** been reviewed, approved, or cleared by Health Canada, the FDA, or any other
+regulatory authority as a medical device.
+
+**Not for diagnostic or treatment decisions.** All scores, classifications, and outputs
+are for research evaluation purposes only. They must not be used, directly or indirectly,
+to diagnose, treat, monitor, or make clinical decisions about any patient.
+
+**No warranty.** Model outputs may be incorrect, incomplete, or misleading. Performance
+on any individual recording cannot be guaranteed.
+
+**No liability.** Simon Fraser University, the research team, and all affiliated parties
+accept no responsibility or liability for any outcome arising from the use or misuse of
+this tool or its outputs.
+
+**Authorized access only.** Do not upload recordings unless you are an authorized
+participant in this research study. EEG files are processed transiently and not stored
+after processing completes.
+
+**Professional judgment required.** All EEG interpretation must continue to be performed
+by qualified clinical neurophysiologists in accordance with established clinical standards.
+""")
+
+        st.divider()
+        acknowledged = st.checkbox(
+            "I have read and understood this disclaimer. I am an authorized participant "
+            "in this research study and will not use these outputs to inform clinical decisions.",
+            key="_disclaimer_checkbox",
+        )
+        if st.button(
+            "Continue to research tool",
+            disabled=not acknowledged,
+            type="primary",
+            use_container_width=True,
+        ):
+            st.session_state._disclaimer_accepted = True
+            st.rerun()
+
+    _show_disclaimer()
+    st.stop()
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -478,6 +532,7 @@ for _k, _v in [
     # pre-computed download payloads
     ("_dl_feature_csv", None),
     ("_dl_params_csv", None),
+    ("_disclaimer_accepted", False), 
 ]:
     if _k not in st.session_state:
         st.session_state[_k] = _v
@@ -490,6 +545,16 @@ with st.sidebar:
         '<div style="text-align:center;padding:0 0 0.2rem 0;">'
         '<p style="color:#00456A;margin:0;font-size:1rem;font-weight:700;letter-spacing:-0.3px;">'
         '🧠 EEG Abnormality Prediction Pipeline</p></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;'
+        'padding:0.4rem 0.65rem;margin:0.3rem 0 0.1rem 0;display:flex;align-items:flex-start;gap:6px;">'
+        '<span style="color:#991B1B;font-size:13px;margin-top:1px;flex-shrink:0;">⚠</span>'
+        '<span style="color:#991B1B;font-size:0.72rem;line-height:1.4;">'
+        '<strong>Research prototype.</strong> Outputs must not inform clinical decisions. '
+        'Not approved by Health Canada or FDA.'
+        '</span></div>',
         unsafe_allow_html=True,
     )
     st.markdown('<div class="fh-divider"></div>', unsafe_allow_html=True)
