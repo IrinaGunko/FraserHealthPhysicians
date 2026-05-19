@@ -1575,13 +1575,15 @@ if tab_preproc is not None:
                 "mgh60",
                 "mgh70",
             ]
-            montage_name = st.selectbox(
+            montage_name = "standard_1020"
+            st.selectbox(
                 "EEG Montage",
                 _MONTAGES,
                 index=0,
                 key="pp_montage",
                 help="Electrode layout applied when loading the file. "
                      "standard_1020 covers most clinical EEG caps.",
+                disabled=True,
             )
 
             st.markdown(
@@ -1589,43 +1591,48 @@ if tab_preproc is not None:
                 unsafe_allow_html=True,
             )
 
+            # ── fixed preprocessing parameters (read-only) ─────────────────────
+            notch_on     = True
+            notch_freq   = 50.0
+            notch_method = "iir"
+            bp_on        = True
+            bp_lfreq     = 0.5
+            bp_hfreq     = 55.0
+            bp_method    = "iir"
+            rs_on        = True
+            rs_target    = 256.0
+
             col_notch, col_bp, col_rs = st.columns(3)
 
             with col_notch:
-                notch_on = st.checkbox("Notch Filter", value=True, key="pp_notch_on")
-                notch_freq = st.number_input(
+                st.checkbox("Notch Filter", value=True, key="pp_notch_on", disabled=True)
+                st.number_input(
                     "Frequency (Hz)", min_value=1.0, max_value=500.0,
-                    value=50.0, step=1.0, key="pp_notch_freq",
-                    disabled=not notch_on,
+                    value=50.0, step=1.0, key="pp_notch_freq", disabled=True,
                 )
-                notch_method = st.selectbox(
-                    "Method", ["iir", "fir"], key="pp_notch_method",
-                    disabled=not notch_on,
+                st.selectbox(
+                    "Method", ["iir", "fir"], key="pp_notch_method", disabled=True,
                 )
 
             with col_bp:
-                bp_on = st.checkbox("Bandpass Filter", value=True, key="pp_bp_on")
-                bp_lfreq = st.number_input(
+                st.checkbox("Bandpass Filter", value=True, key="pp_bp_on", disabled=True)
+                st.number_input(
                     "Low (Hz)", min_value=0.01, max_value=200.0,
-                    value=0.5, step=0.5, key="pp_bp_lfreq",
-                    disabled=not bp_on,
+                    value=0.5, step=0.5, key="pp_bp_lfreq", disabled=True,
                 )
-                bp_hfreq = st.number_input(
+                st.number_input(
                     "High (Hz)", min_value=1.0, max_value=500.0,
-                    value=55.0, step=1.0, key="pp_bp_hfreq",
-                    disabled=not bp_on,
+                    value=55.0, step=1.0, key="pp_bp_hfreq", disabled=True,
                 )
-                bp_method = st.selectbox(
-                    "Method", ["iir", "fir"], key="pp_bp_method",
-                    disabled=not bp_on,
+                st.selectbox(
+                    "Method", ["iir", "fir"], key="pp_bp_method", disabled=True,
                 )
 
             with col_rs:
-                rs_on = st.checkbox("Resample", value=True, key="pp_rs_on")
-                rs_target = st.number_input(
+                st.checkbox("Resample", value=True, key="pp_rs_on", disabled=True)
+                st.number_input(
                     "Target (Hz)", min_value=64.0, max_value=2048.0,
-                    value=256.0, step=1.0, key="pp_rs_target",
-                    disabled=not rs_on,
+                    value=256.0, step=1.0, key="pp_rs_target", disabled=True,
                 )
 
             st.markdown('<div style="margin-top:0.6rem;"></div>', unsafe_allow_html=True)
@@ -1638,7 +1645,7 @@ if tab_preproc is not None:
                 )
             pyprep_on = st.checkbox(
                 "PyPrep — RANSAC bad-channel detection & interpolation",
-                value=False,
+                value=True,
                 key="pp_pyprep_on",
                 disabled=not _PYPREP_AVAILABLE,
             )
@@ -1657,8 +1664,8 @@ if tab_preproc is not None:
                 '<p style="color:#00456A;font-weight:700;margin:0 0 0.3rem 0;">'
                 '🔬 Source Reconstruction (fixed)</p>'
                 '<p style="color:#5A6B7D;font-size:0.82rem;margin:0;">'
-                'Average reference projection → fsaverage forward solution (EEG) → '
-                'LCMV beamformer → Schaefer 400 parcels, 17 networks</p>'
+                'Moiseev preprocessing → average reference → fsaverage forward solution (EEG) → '
+                'Moiseev scalar minimum-variance beamformer (pseudo-Z) → Schaefer 400 parcels, 17 networks</p>'
                 '</div>',
                 unsafe_allow_html=True,
             )
@@ -1688,7 +1695,7 @@ if tab_preproc is not None:
                     "Running PyPrep (bad channel detection)…" if pyprep_on else None,
                     "Setting average reference…",
                     "Computing forward solution…",
-                    "Applying LCMV beamformer…",
+                    "Applying Moiseev beamformer…",
                     "Loading Schaefer 400 parcels…",
                     "Extracting parcel time courses…",
                     "Extracting spectral features…",

@@ -16,3 +16,6 @@ pyprep==0.6.0
 nibabel==5.4.2
 scikit-learn==1.8.0
 diptest==0.10.0
+commentjson==0.9.0
+lark-parser==0.7.8
+pyedflib==0.1.42
